@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>分类</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/new_base_style.css" type="text/css" />
+</head>
+<body>
+<div class="banner">
+		<h1>商品分类</h1>
+		<a class="btna" href="Login.html" id="login_none">
+			<div class="refreshbtnbg" >登录</div>
+		</a>
+		<a class="btna" href="javascript:$.goto_shopping_cart('$.get_path()');" id="login_had" style="display: none;">
+			<div class="refreshbtnbg"><img src="img/shopcar.png">
+				<span class="shopcarnum" id="shopping_cart_num">0</span>
+			</div>
+		</a>
+	</div>
+	<div class="search" style="position: absolute;">
+		<input type="text" id="keyword" name="keyword" class="searchtxt"> 
+		<img class="searchimg"  onclick="check();"src="img/search.png">
+	</div>
+	<div style="margin-top: 95px;position: absolute;width:100%;">
+	<div class="typediv2" id="type_info"> 
+	<!-- 商品分类 -->
+	</div>
+		<!-- 渠道专区 -->
+	<div class="cate-item" style="display: none" id="zhuanquid">
+	<div class="cate-title cate-title-col1"  >
+	厂商
+	</div>
+	<div class="chile-div">
+	<span class="child-1" id="zhuanquidon">品牌专区</span>
+	</div>
+	</div>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	</div>
+
+	<br>
+	<br>
+<script type="text/javascript" src="js/bottom.js"></script>	
+<script  src="js/jq.js"></script>
+<script  src="js/jquery.common.js"></script>
+<script type="text/javascript">
+	function check() {
+		var keyword = document.getElementById("keyword").value;
+		if (keyword == '') {
+			alert('亲,请输入搜索关键字');
+			return;
+		}
+		window.localStorage.setItem("search.html","search.html?keyword="+keyword);
+		window.location.href="search.html";
+	}
+	function goToPage(key){
+		var channel;
+		var activateNumber;
+		try{
+			channel = window.myAndroidJs.getChannel();
+			activateNumber = window.myAndroidJs.getActivateNumber();
+		}catch (e) {
+		}
+		var result="";
+		try{
+			result = window.myAndroidJs.doPostHttpRequest($.get_path("market?type=154&channel="+channel+"&activateNumber="+activateNumber+"&categoryId="+key+""))
+		}catch (e) {
+
+		}
+		window.localStorage.setItem("in.html","in.html?key=" + key);
+		window.location.href="in.html";
+	}	
+	function getCategory(){
+		var result="";
+		try{
+			result = window.myAndroidJs.doPostHttpRequest($.get_path("market?type=173"))
+		}catch (e) {
+			$.getJSON($.get_path("market?jsoncallback=?"),{
+				type:173
+			},function(json){
+				if(json.result=="1"){
+					var arr = new Array();
+					for(var i =0 ;i< json.data.length;i++){
+						var father = json.data[i];
+						arr.push("<div class=\"cate-item\">");
+						arr.push("<div class=\"cate-img\"><img src=\"img/"+father.id+".jpg\">");
+						arr.push("</div><div class=\"cate-subtitle\">");
+						if(father.id=="62"){
+						arr.push("让年轻的身体充满活力的秘密！");
+						}else if(father.id=="35"){
+						arr.push("白富美是这样炼成的，你也可以!");
+						}else if(father.id=="38"){
+							arr.push("视听享受，绽放青春酷炫");
+						}else if(father.id=="47"){
+							arr.push("小装饰，显示你的品位和个性");
+						}else if(father.id=="37"){
+							arr.push("居家生活，来点小创意；你可以懂情调");
+						}else if(father.id=="34"){
+							arr.push("流行服饰，金秋大不同！");
+						}else if(father.id=="46"){
+							arr.push("个性品味，彰显你的独特！");
+						}else if(father.id=="63"){
+							arr.push("天天有礼，惊喜送不停！");
+						}
+						arr.push("</div><div class=\"chile-div\">");
+						var flag = 0;
+						for(var j=0;j<father.childrenCount;j++){
+							var child = father.childrenList[j];
+							if(j==Math.ceil(Math.random()*father.childrenCount)){
+								flag = 1;
+								arr.push("<span class=\"cate-title-col"+father.id+"\" onclick=\"goToPage("+child.id+")\">");
+							} else{
+								if(j==father.childrenCount-1&&flag==0){
+									arr.push("<span class=\"cate-title-col"+father.id+"\" onclick=\"goToPage("+child.id+")\">");
+								} else{
+									arr.push("<span onclick=\"goToPage("+child.id+")\">");
+								}
+								
+							}
+							arr.push(child.name);
+							arr.push("</span>");
+						}
+						arr.push("</div><div style=\"clear:both;\"></div></div>");
+					}
+					$("#type_info").html(arr.join(""));
+				}
+			});
+		}
+		if(result!="")
+		{
+			//result = eval('('+ result +')');
+			result = JSON.parse(result);
+			if(result.result=="1"){
+				var arr = new Array();
+				for(var i =0 ;i< result.data.length;i++){
+					var father = result.data[i];
+					arr.push("<div class=\"cate-item\">");
+					arr.push("<div class=\"cate-img\"><img src=\"img/"+father.id+".jpg\">");
+					arr.push("</div><div class=\"cate-subtitle\">");
+					if(father.id=="62"){
+						arr.push("让年轻的身体充满活力的秘密！");
+					}
+					else if(father.id=="35"){
+						arr.push("白富美是这样炼成的，你也可以!");
+					}
+					else if(father.id=="38"){
+						arr.push("视听享受，绽放青春酷炫");
+					}
+					else if(father.id=="47"){
+						arr.push("小装饰，显示你的品位和个性");
+					}
+					else if(father.id=="37"){
+						arr.push("居家生活，来点小创意；你可以懂情调");
+					}
+					else if(father.id=="34"){
+						arr.push("流行服饰，金秋大不同！");
+					}
+					else if(father.id=="46"){
+						arr.push("个性品味，彰显你的独特！");
+					}
+					else if(father.id=="63"){
+						arr.push("天天有礼，惊喜送不停！");
+					}
+
+					arr.push("</div><div class=\"chile-div\">");
+					var flag = 0;
+					for(var j=0;j<father.childrenCount;j++){
+						var child = father.childrenList[j];
+						if(j==Math.ceil(Math.random()*father.childrenCount)){
+							flag = 1;
+							arr.push("<span class=\"cate-title-col"+father.id+"\" onclick=\"goToPage("+child.id+")\">");
+						} else{
+							if(j==father.childrenCount-1&&flag==0){
+								arr.push("<span class=\"cate-title-col"+father.id+"\" onclick=\"goToPage("+child.id+")\">");
+							} else{
+								arr.push("<span onclick=\"goToPage("+child.id+")\">");
+							}
+							
+						}
+						arr.push(child.name);
+						arr.push("</span>");
+					}
+					arr.push("</div><div style=\"clear:both;\"></div></div>");
+				}
+				$("#type_info").html(arr.join(""));
+			}
+		}		
+	}
+	$(function(){
+		$.show_shopping_cart_num($.get_path());
+		$.doClearHistory();
+		//读取分类
+		setTimeout(getCategory);
+		$.loadLoginStatus();//登录状态检验
+		
+	});
+</script>	
+</body>
+
+</html>
+
+

@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>关于拍淘</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=0.7, minimum-scale=0.2, maximum-scale=3.0, user-scalable=yes" />
+	<link rel="stylesheet" href="css/base_style.css" type="text/css" />
+</head>
+<body onload="setPic()">
+		
+	<div style="position: absolute;" id="big_pic">
+		<img src="img/grey.gif">
+	</div>
+	
+<script src="js/jq.js"></script>	
+<script src="js/jquery.common.js"></script>
+<script type="text/javascript">
+
+	function setPic(){
+		
+		var photoList =  window.myAndroidJs.getPictureList();
+		//获取当前图片
+		var current = photoList.substring(photoList.indexOf(":") + 1,(photoList.indexOf(",")));
+		
+		var photoStr = photoList.substring(photoList.indexOf("[") + 1,photoList.indexOf("]")).split(",");
+		
+		var html = "";
+		for(var i = 0;i<photoStr.length;i++){
+			
+			html += "<img src='" + photoStr[i] + "'>";
+		}
+		
+		$("#big_pic").html(html);
+	}
+</script>
+</body>
+</html>
+
+

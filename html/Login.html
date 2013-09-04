@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>登录</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/base_style.css" type="text/css" />
+</head>
+<body bgcolor="#F4F4EC">
+	<div class="banner">
+		<h1>登录</h1>
+		<a class="btnr">
+			<div onclick="history.go(-1);" >返回</div></a>
+		</a>
+	</div>  	
+   	<section class="login">
+	<form id="J_login_form" name="form" method="post" style="margin-top:60px">
+		<div class="login-frame">
+			<ul>
+				<li><p>账号</p>
+					<p><input id="J_username" name="username" type="text" class="log-inp " placeholder="请输入账号"  /></p>
+				</li>
+				<li><p>密码</p>
+					<p><input id="J_password" name="password" type="password" class="log-inp" placeholder="请输入密码"/></p>
+				</li>
+				<li>
+					<label><input id="J_auth" name="keepLogin" type="checkbox"  class="inp-chec" checked="checked"/>自动登录</label>
+				</li>
+			</ul>
+		</div>
+	</form>
+	<div id="Mes"></div>
+	<!--登录 end-->
+	<a id="J_submit" href="javascript:;" class="down-btn" style="text-decoration: none;margin-bottom: 78px;">登录</a>
+	<a id="J_reg" href="Reg.html" class="down-btn" style="text-decoration: none;">注册</a>	
+</section>
+
+<script src="js/jq.js"></script>
+<script src="js/jquery.common.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+var remember_me = window.localStorage.getItem('_remember_me');	
+if(remember_me == 'yes'){
+	//window.location.href="Login?to=auto";
+}
+$("#J_submit").click( function() {
+	  var username = $("#J_username"),password = $("#J_password");
+	  if(username.val()=="") {
+		$("#Mes").html("请输入账号！").show(300).delay(2000).hide(300);
+		return false;
+	  }
+	  if(password.val()==""){
+		$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300);
+		return false;
+	  }
+	  user_login(username.val(),password.val());
+	});
+});
+
+function user_login(username,password){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest($.get_path("market?type=176&username="+username+"&userpwd="+password+""))
+  	}catch (e) {
+  		$.getJSON($.get_path("market?jsoncallback=?"),{
+			type:176,
+			username:username,
+			userpwd:password
+		},function(json){
+			if(json.result == 1){
+				var arr = json.data
+				var uid = arr.id;
+				var phoneNum = arr.phoneNum;
+				var location = arr.location;
+				var email = arr.email;
+				var nickName = arr.nickName;
+				var userName = arr.userName;
+				window.localStorage.setItem("_user_id",uid);
+				window.localStorage.setItem("phoneNum",phoneNum);
+				window.localStorage.setItem("location",location);
+				window.localStorage.setItem("email",email);
+				window.localStorage.setItem("_user_nick",nickName);
+				window.localStorage.setItem("_user_name",userName);
+
+				if($("#J_auth").attr("checked") == 'checked' || $("#J_auth").attr("checked")){
+					window.localStorage.setItem("_remember_me",'yes');
+					window.localStorage.setItem("_user_pwd",password);
+				}else{
+					window.localStorage.setItem("_remember_me",'');
+					window.localStorage.setItem("_user_pwd",'');
+				}
+				//登陆成功后跳转				
+				window.history.go(-1);
+			}else {
+				//失败 显示错误信息
+				$("#Mes").html(json.msg).show(300).delay(2000).hide(300);
+			}
+		});
+	}
+	if(result!="")
+	{
+		//result = eval('('+ result +')');
+		result = JSON.parse(result);
+		if(result.result == 1){
+			var arr = result.data
+			var uid = arr.id;
+			var phoneNum = arr.phoneNum;
+			var location = arr.location;
+			var email = arr.email;
+			var nickName = arr.nickName;
+			var userName = arr.userName;
+			window.localStorage.setItem("_user_id",uid);
+			window.localStorage.setItem("phoneNum",phoneNum);
+			window.localStorage.setItem("location",location);
+			window.localStorage.setItem("email",email);
+			window.localStorage.setItem("_user_nick",nickName);
+			window.localStorage.setItem("_user_name",userName);
+
+			if($("#J_auth").attr("checked") == 'checked' || $("#J_auth").attr("checked")){
+				window.localStorage.setItem("_remember_me",'yes');
+				window.localStorage.setItem("_user_pwd",password);
+			}else{
+				window.localStorage.setItem("_remember_me",'');
+				window.localStorage.setItem("_user_pwd",'');
+			}
+			//登陆成功后跳转				
+			window.history.go(-1);
+		}else {
+			//失败 显示错误信息
+			$("#Mes").html(result.msg).show(300).delay(2000).hide(300);
+		}
+	}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>快速注册</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/base_style.css" type="text/css" />
+</head>
+<body bgcolor="#F4F4EC">
+	<div class="banner">
+		<h1>快速注册</h1>
+			<a class="btnr">
+			<div onclick="history.go(-1);" >返回</div></a>
+	</div>
+   	<section class="login" >
+	<form id="J_login_form" name="form" method="post" style="margin-top:60px;" >
+		<div class="login-frame">
+			<ul>
+				<li><p>手机号</p>
+					<p><input id="J_username" name="username" type="text" class="log-inp" placeholder="请输入用户名" /></p>
+				</li>
+				<li><p>密码</p>
+					<p><input id="J_password" name="password" type="password" class="log-inp" placeholder="请输入密码"/></p>
+				</li>
+				<li><p>确认密码</p>
+					<p><input id="J_repassword" name="repassword" type="password" class="log-inp" placeholder="请确认密码"/></p>
+				</li>
+			</ul>
+		</div>
+	</form>
+	<div id="Mes"></div>
+	<a id="J_submit" href="javascript:;" class="down-btn" style="text-decoration: none;margin-bottom: 78px;width:90%">提交</a>	
+</section>
+
+<script type="text/javascript" src="js/jq.js"></script>
+<script type="text/javascript" src="js/jquery.common.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+$("#J_submit").click( function() {
+	  var username = $("#J_username"),
+	  	  password = $("#J_password"),
+	  	  repassword = $("#J_repassword");
+	  if(!checkPhonenum()){
+			return false;
+	 	}
+	  if(password.val()==""){
+		$("#Mes").html("密码为必填项！").show(300).delay(2000).hide(300); 
+		return false;
+	  }
+	 if(!checkPassword()){
+		 return false;
+	 }
+	 if(password.val()!=repassword.val()){
+		 alert('前后密码输入不一致');
+		 return false;
+	 }
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest($.get_path("market?type=175&username="+username.val()+"&userpwd="+password.val()+""));
+  	}catch (e) {
+  		$.getJSON("http://api.wedanke.com/server/market?jsoncallback=?",{
+		   type : 175,
+		   username : username.val(),
+		   userpwd :  password.val()
+		},function(result){
+			if(result.result == 1){
+				alert("注册成功");
+				var arr = result.data
+				var uid = arr.id;
+				var nickName = arr.nickName;
+				var userName = arr.userName;
+				window.localStorage.setItem("_user_id",uid);
+				window.localStorage.setItem("_user_nick",nickName);
+				window.localStorage.setItem("_user_name",userName);
+				history.go(-2);
+			}
+			else{
+				$("#Mes").html(result.msg).show(300).delay(2000).hide(300);
+			}
+		});
+	}
+	if(result!="")
+	{
+		//result = eval('('+ result +')');
+		result = JSON.parse(result);
+		if(result.result == 1){
+			alert("注册成功");
+			var arr = result.data
+			var uid = arr.id;
+			var nickName = arr.nickName;
+			var userName = arr.userName;
+			window.localStorage.setItem("_user_id",uid);
+			window.localStorage.setItem("_user_nick",nickName);
+			window.localStorage.setItem("_user_name",userName);
+			history.go(-2);
+		}
+		else{
+			$("#Mes").html(result.msg).show(300).delay(2000).hide(300);
+		}
+	}
+});
+});
+function checkUsername () {
+	var checkusername = true;
+	var username=$("#J_username");
+	if(hasElement(username)) {
+		var usernameVal = $.trim(username.val()),
+			checkResult = limitNickLength(usernameVal);
+		if(!checkResult) {
+			$("#Mes").html("请输入昵称，不超过24个字符或12个中文字").show(300).delay(2000).hide(300);
+			checkusername = false;
+		} else if (!/^[0-9a-zA-Z_\u4E00-\u9FA5\uF900-\uFA2D]{1,24}$/.test(usernameVal)) {
+			$("#Mes").html("只能使用24个以内的字母、数字、中文、下划线").show(300).delay(2000).hide(300);
+			checkusername = false;
+		} else if (/^\d+$/.test(usernameVal)) {
+			$("#Mes").html("昵称不能全为数字").show(300).delay(2000).hide(300);
+			checkusername = false;
+		}
+	}
+	return checkusername;
+}
+function checkPassword () {
+	var checkPsw = true;
+	var password = $("#J_password");
+	if (hasElement(password)) {
+		var pswVal = $.trim(password.val());
+		if (pswVal.length === 0) {
+			$("#Mes").html("请输入密码").show(300).delay(2000).hide(300);
+			checkPsw = false;
+		} else if (!/^.{6,32}$/.test(pswVal)) {
+			$("#Mes").html("密码长度必须为6-32字符").show(300).delay(2000).hide(300);
+			checkPsw = false;
+		}
+	}
+	return checkPsw;
+}
+function checkEmail () {
+	var checkEmail = true;
+	var email = $("#J_email");
+	if(hasElement(email)) {
+		var emailVal = $.trim(email.val());
+		if(emailVal!="")
+		{
+		if (emailVal.match('^[a-z0-9._%-]+@[a-z0-9.-]+\\.[a-z]{2,4}$') == null) {
+			$("#Mes").html("请输入正确邮箱地址").show(300).delay(2000).hide(300);
+			checkEmail = false;
+		}
+		}
+	}
+	return checkEmail;
+}
+
+function checkPhonenum () {
+	var phoneNum = true;
+	var phonenum = $("#J_username");
+	if(hasElement(phonenum)) {
+		var phonenumVal = $.trim(phonenum.val());
+		if(phonenumVal.length < 1){
+			$("#Mes").html("请输入手机号码").show(300).delay(2000).hide(300);
+			phoneNum = false;
+		}else{
+	        if (!/^[0-9]{11}$/.test(phonenumVal)) {
+				$("#Mes").html("请输入正确的手机号码").show(300).delay(2000).hide(300);
+				phoneNum = false;
+			}
+		}
+	}
+	return phoneNum;
+}
+function limitNickLength(val) {
+	var rst, regex,
+	input = val,
+	count = 0;
+	if (rst = input) {
+	rst = input.length;
+	for (regex = /[\u4e00-\u9fa5]/; rst--; ) {
+	count += regex.test(input.charAt(rst)) ? 2 : 1;
+	}
+	rst = 24 >= count;
+	} else {
+	rst = false;
+	}
+	return rst;
+	} 
+function hasElement (ele) {
+	return (ele.length > 0);
+}
+</script>
+</body>
+</html>

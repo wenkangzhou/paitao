@@ -1,0 +1,205 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<title>商品列表</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/new_base_style.css" type="text/css" />
+</head>
+<body onload="loadData(1);">
+	<div class="banner">
+		<h1>分类</h1>
+			<a class="btnr">
+			<div onclick="history.go(-1);" >返回</div></a>
+		<a class="btna" href="Login.html" id="login_none">
+			<div class="refreshbtnbg" >登录</div>
+		</a>
+		<a class="btna" href="javascript:$.goto_shopping_cart('$.get_path()');" id="login_had" style="display: none;">
+			<div class="refreshbtnbg"><img src="img/shopcar.png">
+				<span class="shopcarnum" id="shopping_cart_num">0</span>				
+			</div>
+		</a>
+	</div>
+<div class="in_list" id="list_div">
+
+</div>
+
+<script src="js/jq.js"></script>
+<script src="js/jquery.common.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$.show_shopping_cart_num($.get_path());
+		$.loadLoginStatus();
+	});
+	function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+    }
+	var key = $.get_param('key');
+	var userId = "366623";
+	var pageSize = 20;
+	var pageNo = 1;
+	
+	var channel;
+	var versionCode;
+	var activateNumber;
+	try{	
+		channel = window.myAndroidJs.getChannel();
+		activateNumber = window.myAndroidJs.getActivateNumber();
+		versionCode = window.myAndroidJs.getVersionCode();
+	}catch (e) {
+	}
+	var time;
+	var k = $.get_param('key');
+	var tw = '分类';
+	switch(k){
+		case 30:tw='特卖区';break;
+		case 34:tw='服饰';break;
+		case 35:tw='美容';break;
+		case 37:tw='创意百货';break;
+		case 38:tw='家电数码';break;
+		case 42:tw='运动户外';break;
+		case 43:tw='童装';break;
+		case 44:tw='男人装';break;
+		case 45:tw='普莱达';break;
+		case 46:tw='鞋包';break;
+		case 47:tw='配饰';break;
+		case 48:tw='优冠';break;
+		case 49:tw='奥乐';break;
+		case 50:tw='脉腾';break;
+		case 51:tw='酷诺';break;
+		case 52:tw='拉风';break;
+		case 53:tw='吉邦';break;
+		case 54:tw='贝龙';break;
+		case 55:tw='GOB';break;
+		case 62:tw='保健';break;
+	}
+	
+	var channelName = getQueryString('channelName');
+	if(k>=45&&channelName!=''){
+		tw = decodeURI(channelName);
+	}
+	$(window).scroll(function() {  
+          //获取网页的完整高度(fix)  
+      var hght= document.documentElement.scrollHeight;  
+  
+      //获取浏览器高度(fix)  
+      var clientHeight =document.documentElement.clientHeight;  
+  
+          //获取网页滚过的高度(dynamic)  
+      var top= window.pageYOffset ||   
+                        (document.compatMode == 'CSS1Compat' ?    
+                        document.documentElement.scrollTop :   
+                        document.body.scrollTop);  
+          //当 top+clientHeight = scrollHeight的时候就说明到底儿了  
+      if(top>=(parseInt(hght)-clientHeight)-1){  
+        
+			//加载下一页数据
+			loadData(2);
+	  }  
+  });  
+
+  //加载下一页数据
+  function loadData(loadType){
+		
+		//加载第一页数据(刚打开页面的时候)
+		if(loadType == 1){
+
+			pageNo = 1;
+			time = "";
+		}else if(loadType == 2){
+			//加载下一页数据
+			pageNo = pageNo + 1;
+		}
+		
+		var result="";
+	  	try{
+	  		result = window.myAndroidJs.doPostHttpRequest($.get_path("market?type=129&userId="+userId+"&stype="+key+"&time="+time+"&pageSize="+pageSize+"&pageNo="+pageNo+"&channel="+channel+""))
+	  	}catch (e) {
+	  		$.getJSON("http://api.wedanke.com/server/market?jsoncallback=?",{
+			   type : 129,
+			   userId : userId,
+			   stype : key,
+			   time : time,
+			   pageSize : pageSize,
+			   pageNo : pageNo,
+			   channel : channel
+			},function(result){
+				var res = result.data;
+				if(pageNo==1){
+					$("#load").html('');
+					if(res.length==0){
+						$("#load").html('暂无数据');
+					}
+				}
+
+				for(var i = 0 ;i < res.length;i++){
+
+					var info = res[i];
+					
+					var html = getHtmlByInfo(info);
+
+					$('#list_div').append(html);
+				}
+			});
+		}
+		if(result!="")
+		{
+			result = eval('('+ result +')');
+			//result = JSON.parse(result);
+			var res = result.data;
+			if(pageNo==1){
+				$("#load").html('');
+				if(res.length==0){
+					$("#load").html('暂无数据');
+				}
+			}
+
+			for(var i = 0 ;i < res.length;i++){
+
+				var info = res[i];
+				
+				var html = getHtmlByInfo(info);
+
+				$('#list_div').append(html);
+			}
+		}	
+	}
+
+	function getHtmlByInfo(info){
+
+		var title = info.title;
+		var id = info.id;
+		//title = title.substring(0,10);
+		var softIcon = info.icon;
+		var url = info.url;
+		var current_price = info.current_price;
+		var original_price = info.original_price;
+		var inventory = info.inventory;
+		return "<div class=\"in_div\" onclick=\"goToSoft(" + id + ")\" >"+
+		"<div class=\"in_goodimg\">"+
+		"<img src=\"" + softIcon + "\">"+
+		"</div>"+
+		"<div class=\"in_gooddescribe\">"+
+		"<div class=\"in_title\">"+
+		"<b>"+title+"</b>"+
+		"</div>"+
+		"<div class=\"in_price\">"+
+		"<div class=\"in_pricol1\" >￥"+current_price+"</div>"+
+		"<del class=\"in_pricol2\">￥"+original_price+"</del>"+
+		"</div>"+
+		"<span class=\"in_sellnum\">已售"+inventory+"件</span>"+
+		"</div>"+
+		"</div>";
+	}
+
+	//跳转页面
+	function goToSoft(id){
+		window.localStorage.setItem("new_goods_view.html","new_goods_view.html?id=" + id);
+		window.location.href="new_goods_view.html";
+	}
+</script>
+</body>
+</html>
+

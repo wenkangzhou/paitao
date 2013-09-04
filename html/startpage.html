@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="stylesheet" href="css/base_style.css" type="text/css"/>
+<title>启动图</title>
+</head>
+<body>
+
+<div id="notNetwork" style="display: none;" onclick="reloadCurrentPage()">
+	
+	<div style="margin-top: 40%;">
+		<img src="img/nonetwork.png" style="width:70%;margin-left: 15%">
+	</div>
+	<p style="color:#d66a24;font-family: 微软雅黑;width: 100%;text-align: center;">亲，您的网络不给力！请检查一下网络设置</p>
+	
+</div>
+
+<div id="bodyHtml">
+<div id="wrapper">
+	<div id="scroller">
+		<ul >
+			<li>
+				<div id="zhezhaoimg" class="zhezhaoimg">
+					<img  src="img/zhezhao.png" width="100%" height="569px" style="display: block;">
+				</div>
+				<div><a href="javascript:void(0)"><img width="100%" height="569px" style="display: block;" src="img/logo_main.jpg" /></a></div>
+			</li>
+			<li><div><a href="javascript:void(0)"><img width="100%" height="569px" style="display: block;" src="img/startPic1.jpg" /></a></div></li>
+		</ul>
+	</div>
+</div>
+</div>
+<script type="text/javascript" src="js/jq.js"></script>
+<script type="text/javascript" src="js/iscroll.js"></script>
+<script type="text/javascript">
+function loaded() {
+	var myScroll;
+	initSize();
+//	setTimeout(initSize,1000);
+	myScroll = new iScroll('wrapper', {
+		snap: true,
+		momentum: false,
+		hScrollbar: false,
+		bounce:false,
+	    hideScrollbar: true,
+	    fadeScrollbar: true,
+		onScrollEnd: function () {
+			if(this.x==this.maxScrollX){		
+				window.location.href = "1.html";
+			}
+		}
+	 });
+}
+document.addEventListener('DOMContentLoaded', loaded, false);
+
+function initSize(){
+	//alert(document.documentElement.clientWidth+"#1#"+document.documentElement.clientHeight)
+	$("#wrapper").width(document.body.scrollWidth);
+	$("#wrapper").height(document.body.scrollHeight);
+	$("#scroller").width(document.body.scrollWidth*3);
+	$("#scroller li").width(document.body.scrollWidth);
+	$("#scroller li").height(document.body.scrollHeight);
+	$("#scroller img").height(document.body.scrollHeight);
+	$("#scroller img").width(document.body.scrollWidth);
+	if(localStorage.getItem("isFirstStart")=='null'||localStorage.getItem("isFirstStart")==''||localStorage.getItem("isFirstStart")==null){
+		//localStorage.setItem("isFirstStart","true");
+	}
+	else{
+		$("#zhezhaoimg").hide();
+	}
+}
+
+//没有网络的时候调用 函数解析阶段优先级大于变量
+function notNetwork(){
+
+	$("#bodyHtml").hide();
+	$("#notNetwork").show();
+
+}
+if(window.myAndroidJs!==undefined){
+	if(!window.myAndroidJs.checkNetwork()){
+		
+		notNetwork();
+		
+	}
+}
+function reloadCurrentPage(){
+	
+	window.myAndroidJs.woringNetwork(window.location.href + "");
+
+}
+
+</script>
+</body>
+</html>

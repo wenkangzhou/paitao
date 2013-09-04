@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>特卖专区</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+
+<link rel="stylesheet" href="css/new_base_style.css" type="text/css" />
+</head>
+<body>
+<div class="banner">
+		<h1>特卖专区</h1>
+		<a class="btna" href="Login.html" id="login_none">
+			<div class="refreshbtnbg" >登录</div>
+		</a>
+		<a class="btna" href="javascript:$.goto_shopping_cart('$.get_path()');" id="login_had" style="display: none;">
+			<div class="refreshbtnbg"><img src="img/shopcar.png">
+				<span class="shopcarnum" id="shopping_cart_num">0</span>				
+			</div>
+		</a>
+</div>
+<div class="special_list" id="special_info">
+
+</div>
+<script type="text/javascript" src="js/bottom.js"></script>
+<script  src="js/jq.js"></script>
+<script  src="js/jquery.common.js"></script>
+<script type="text/javascript">
+var channel;
+var activateNumber;
+try{
+	channel = window.myAndroidJs.getChannel();
+	activateNumber = window.myAndroidJs.getActivateNumber();
+}catch (e) {
+}
+
+function special_group_list(){
+	var result="";
+		try{
+			result = window.myAndroidJs.doPostHttpRequest($.get_path("market?type=170"))
+		}catch (e) {
+			$.getJSON($.get_path("market?jsoncallback=?"),{
+				type:170
+			},function(json){
+				if(json.result == "1"){
+					var arr = new Array();
+					for ( var i in json.data) {
+						var group = json.data[i];
+						arr.push("<div class=\"special_title\">");	
+						arr.push(group.name);	
+						arr.push("</div>");	
+						for ( var j in group.goodsList) {
+							var goods = group.goodsList[j];
+							if(j % 2 == 0){
+								arr.push("<div class=\"special_row\">");
+								arr.push("<div class=\"special_left\">");
+							}else{
+								arr.push("<div class=\"special_right\">");
+							}
+							
+							arr.push("<div class=\"special_img\">");
+							arr.push("<img onclick=\"goToSoft('"+goods.softId+"')\" src=\"");
+							arr.push(goods.samllPicture);
+							arr.push("\"></div>");
+							arr.push("<p class=\"special_name\">");
+							arr.push(goods.name);
+							arr.push("</p>");
+							arr.push("<div class=\"special_bottom\">");
+							arr.push("<span class=\"special_price\">￥");
+							arr.push(goods.currentPrice);
+							arr.push("</span><span class=\"special_mun\"><del>￥");
+							arr.push(goods.originalPrice);
+							arr.push("</del></span></div></div>");
+							if(j % 2 != 0 || j == group.goodsList.length - 1){
+								arr.push("</div>");
+							}
+						}
+						arr.push("<p class=\"special_more\" onclick=\"goto_more("+group.id+",'"+group.name+"');\">点击查看更多</p><br><br>");	
+					}
+					$("#special_info").html(arr.join(""));
+				}
+			});
+		}
+		if(result!="")
+		{
+			//result = eval('('+ result +')');
+			result = JSON.parse(result);
+			if(result.result=="1"){
+				var arr = new Array();
+				for ( var i in result.data) {
+					var group = result.data[i];
+					arr.push("<div class=\"special_title\">");	
+					arr.push(group.name);	
+					arr.push("</div>");	
+					for ( var j in group.goodsList) {
+						var goods = group.goodsList[j];
+						if(j % 2 == 0){
+							arr.push("<div class=\"special_row\">");
+							arr.push("<div class=\"special_left\">");
+						}else{
+							arr.push("<div class=\"special_right\">");
+						}
+						arr.push("<div class=\"special_img\">");
+							arr.push("<img onclick=\"goToSoft('"+goods.softId+"')\" src=\"");
+							arr.push(goods.samllPicture);
+							arr.push("\"></div>");
+							arr.push("<p class=\"special_name\">");
+							arr.push(goods.name);
+							arr.push("</p>");
+							arr.push("<div class=\"special_bottom\">");
+							arr.push("<span class=\"special_price\">￥");
+							arr.push(goods.currentPrice);
+							arr.push("</span><span class=\"special_mun\"><del>原价:￥");
+							arr.push(goods.originalPrice);
+							arr.push("</del></span></div></div>");
+							if(j % 2 != 0 || j == group.goodsList.length - 1){
+								arr.push("</div>");
+						}
+					}
+					arr.push("<p class=\"special_more\" onclick=\"goto_more("+group.id+",'"+group.name+"');\">点击查看更多</p><br><br>");	
+				}
+				$("#special_info").html(arr.join(""));
+			}
+		}
+}
+
+function goToSoft(id){
+	window.localStorage.setItem("new_goods_view.html","new_goods_view.html?id=" + id);
+	window.location.href="new_goods_view.html";
+}
+
+function goto_more(id,name){
+	window.localStorage.setItem("special_more.html","special_more.html?id="+id);
+	window.location.href="special_more.html";
+}
+
+$(function(){
+	$.show_shopping_cart_num($.get_path());
+	$.doClearHistory();
+	//获取特卖数据
+	setTimeout(special_group_list());
+	$.loadLoginStatus();
+});
+</script>
+</body>
+</html>
