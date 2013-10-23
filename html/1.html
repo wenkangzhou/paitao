@@ -152,8 +152,7 @@ function getHtmlByInfo(info,type){//type用于控制倒计时
 	var id = info.id;
 	var title = info.title;
 	//title = title.substring(0,10);
-	var thumbnail = info.thumbnail;
-	thumbnail = "http://res.wemedias.com:8080/client/upload/taoicon/"+thumbnail;
+	var thumbnail = $.get_link_url('http://res.wemedias.com:8080/client/upload/taoicon/',info.thumbnail);
 	var discount = info.discount;
 	discount = Math.floor(discount);
 	var current_price = info.current_price;

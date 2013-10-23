@@ -83,7 +83,8 @@ body{font-size:12px;color:#222;font-family:Verdana,Arial,Helvetica,sans-serif;ba
 <br style="clear: left;" />
 
 <div id="good_xqjs" style="margin-left:1.5%;width:97%;">
-<p style="line-height:24px;font-size:16px;word-break:break-all;margin-top:10px;width:100%;" id="_goods_remark"></p>
+<p style="line-height:24px;font-size:16px;word-break:break-all;margin-top:10px;width:100%;" id="_goods_remark">
+</p>
 <br>
 	<div class="good_xqfx">
 		<div class="good_xqfximg" style="width:49.3%" onclick="shareFriends();">
@@ -146,11 +147,14 @@ function load_goods_detail(_callback){
 				$("#_goods_currentPrice").html(_goods.currentPrice);
 				$("#_goods_originalPrice").html(_goods.originalPrice);
 				$("#_goods_discount").html(_goods.discount);
-				$("#_goods_inventory").html(_goods.inventory);		
+				$("#_goods_inventory").html(_goods.inventory);
+				if(_goods.videoLink != null){
+					$("#_goods_remark").append("<div style='text-align:center'>"+_goods.videoLink+"</div>");
+				} 	
 				if(_goods.info == null){
 					$("#_goods_remark").append(_goods.remark);
 				} else{
-					$("#_goods_remark").html(_goods.info);
+					$("#_goods_remark").append(_goods.info);
 				}
 				//$("#_goods_remark").html(_goods.remark);
 				$("#goods_id").val(_goods.id);
@@ -215,6 +219,9 @@ function load_goods_detail(_callback){
 			$("#_goods_discount").html(_goods.discount);
 			$("#_goods_inventory").html(_goods.inventory);
 			//$("#_goods_remark").html(_goods.remark);
+			if(_goods.videoLink != null){
+				$("#_goods_remark").append("<div style='text-align:center'>"+_goods.videoLink+"</div>");
+			} 	
 			if(_goods.info == null){
 				$("#_goods_remark").append(_goods.remark);
 			} else{

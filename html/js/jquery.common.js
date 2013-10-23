@@ -46,6 +46,13 @@ jQuery.get_bytes = function (val) {
 jQuery.num_N = function (n){ 
 	return n > 9 ? 'N' : n; 
 }
+jQuery.get_link_url = function (link_base,link_url){
+	if(link_url == null || link_url == undefined || link_url.toLowerCase().indexOf('http://') > -1 ){
+		return link_url;
+	} else{
+		return link_base + link_url;
+	}
+};
 jQuery.goto_goods_detail = function (id){ 
 	window.localStorage.setItem("new_goods_view.html","new_goods_view.html?id=" + id);
 	window.location.href="new_goods_view.html";
@@ -96,6 +103,7 @@ jQuery.goto_shopping_cart =function(){
 	window.location.href="gwc.html";
 	return false;
 }
+
 var _channel;
 var _imei;
 try{
