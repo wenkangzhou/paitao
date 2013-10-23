@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html> 
+<head>
+<title>留言信箱</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">留言信箱</span>
+	<div class="head_right">
+	</div>
+</div>
+<!-- 如果留言板有内容 这块内容不显示 -->
+<div class="gwc_kong" id="message_none_div" style="display:none">
+	<div><img src="img/paitaoicon2.png" /></div>
+	<div class="gwc_kongp">您的留言信箱是空的</div>
+</div>
+<!-- 内容部分 -->
+<div class="mess_list" id="list_div">
+</div>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){
+	get_board_list();//获取留言信息
+});
+//获取留言信息
+function get_board_list(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=179&userId="+localStorage.getItem("userId")+""))
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+		    type : 179,
+		    userId : localStorage.getItem("userId")
+		},function(result){
+			set_board_list(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		set_board_list(result);
+	}
+}
+//填充留言信息
+function set_board_list(result){
+	if(result.result == 1){
+		if(result.data.boardList.length < 1){
+			$("#message_none_div").show();
+		}else{
+			var arr = new Array("");
+			for( var i in result.data.boardList){
+				var board = result.data.boardList[i];
+				if(board.orderId != null){
+					arr.push('<div class="mess_box_list_info" id="_msg_board'+board.id+'">');
+					arr.push('<div class="in_goodimg" onclick="goto_board(1,\''+board.orderId+'\',\''+board.channelId+'\');">');
+					arr.push('<img class="mess_box_goodsImg" src="'+board.commodityIcon+'">');
+					arr.push('<img class="mess_box_erImg" src="img/mess_box_er.png">');
+					arr.push('<span class="mess_box_num">'+commonJs.num_N(board.unReadNum)+'</span>');
+					arr.push('</div>');
+					arr.push('<div class="in_gooddescribe" onclick="goto_board(1,\''+board.orderId+'\',\''+board.channelId+'\');">');
+					arr.push('<div class="title gooddiv goodtit">');
+					arr.push('<b>'+board.commodityName+'</b>');
+					arr.push('</div>');
+					arr.push('<div class="mess_pl">'+board.replayContent+'</div>');
+					// arr.push('<div class="mess_pl mess_time">'+board.replayTime.substr(0,10)+'</div>');
+					arr.push('</div>');
+					arr.push('<div style="clear:both"></div>');
+					arr.push('<div class="mess_btn" onclick="hide_board(1,\''+board.orderId+'\',\''+board.channelId+'\',\'_msg_board'+board.id+'\');">删除</div>');
+					arr.push('</div>');
+				}else{
+					arr.push('<div class="mess_box_list_info" id="_msg_board'+board.id+'">');
+					arr.push('<div class="in_goodimg" onclick="goto_board(2,\''+board.commodityId+'\',\''+board.channelId+'\');">');
+					arr.push('<img class="mess_box_goodsImg" src="'+board.commodityIcon+'">');
+					arr.push('<img class="mess_box_erImg" src="img/mess_box_er.png">');
+					arr.push('<span class="mess_box_num">'+commonJs.num_N(board.unReadNum)+'</span>');
+					arr.push('</div>');
+					arr.push('<div class="in_gooddescribe" onclick="goto_board(2,\''+board.commodityId+'\',\''+board.channelId+'\');">');
+					arr.push('<div class="title gooddiv goodtit">');
+					arr.push('<b>'+board.commodityName+'</b>');
+					arr.push('</div>');
+					arr.push('<div class="mess_pl">'+board.replayContent+'</div>');
+					// arr.push('<div class="mess_pl mess_time">'+board.replayTime.substr(0,10)+'</div>');
+					arr.push('</div>');
+					arr.push('<div style="clear:both"></div>');
+					arr.push('<div class="mess_btn" onclick="hide_board(2,\''+board.commodityId+'\',\''+board.channelId+'\',\'_msg_board'+board.id+'\');">删除</div>');
+					arr.push('</div>');
+				}
+			}
+			$("#list_div").html(arr.join(''));
+		}
+	}
+}
+//跳转到留言板页面
+function goto_board(type,id,channelId){
+	if(type == 1){
+		window.localStorage.setItem("message_talk.html","message_talk.html?orderId="+id+"&channelId="+channelId);
+		window.location.href='message_talk.html';
+	}else if(type == 2){
+		window.localStorage.setItem("message_talk.html","message_talk.html?commodityId="+id+"&channelId="+channelId);
+		window.location.href='message_talk.html';
+	}
+}
+//删除留言信息
+function hide_board(type,id,channelId,remove_id){
+	if(!window.confirm("您确定要删除该信息吗?")){
+		return false;
+	}
+	var result="";
+	if(type == 1){
+	  	try{
+	  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=167&userId="+localStorage.getItem("userId")+"&channelId="+channelId+"&orderId="+id+""))
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			    type : 167,
+			    userId : localStorage.getItem("userId"),
+			    channelId : channelId,
+			    orderId : id
+			},function(result){
+				if(result.data.result == "noparam"){
+					return false;
+				}else {
+					$("#"+remove_id).remove();		
+					if($("#list_div").children("div[class='mess_box_list_info']").length < 1){
+						$("#message_none_div").show();
+					}
+				}
+			});
+		}
+	} else if(type == 2){
+		try{
+	  		result = window.myAndroidJs.doPostHttpRequest($.get_path("market?type=167&userId="+localStorage.getItem("userId")+"&channelId="+channelId+"&commodityId="+id+""))
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			    type : 167,
+			    userId : localStorage.getItem("userId"),
+			    channelId : channelId,
+			    commodityId : id
+			},function(result){
+				if(result.data.result == "noparam"){
+					return false;
+				}else {
+					$("#"+remove_id).remove();		
+					if($("#list_div").children("div[class='mess_box_list_info']").length < 1){
+						$("#message_none_div").show();
+					}
+				}
+			});
+		}
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		if(result.result == "1"){
+			if(result.data.result == "noparam"){
+				return false;
+			}else {
+				$("#"+remove_id).remove();		
+				if($("#list_div").children("div[class='mess_box_list_info']").length < 1){
+					$("#message_none_div").show();
+				}
+			}
+		}
+	}
+}
+</script>
+</body>
+</html>

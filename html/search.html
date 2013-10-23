@@ -1,0 +1,202 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>搜索</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>	
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">搜索</span>
+	<div class="head_right">
+	</div>
+</div>
+	
+<!-- 搜索条 -->
+<section>
+	<div class="search">
+		<input type="text" id="keyword" class="search-input" placeholder="请输入关键字">
+		<div class="search-btn" onclick="searchClick()">搜索</div> 
+	</div>
+</section>
+<!-- 搜索内容 -->
+<section>
+<div class="search-info">
+	<div class="search-info-text">大家都在搜:</div>
+	<div class="search-info-keylist">
+		<span>成人用品</span>
+		<span>飞机杯</span>
+		<span>减肥灵药</span>
+		<span>成人用品</span>
+		<span>飞机杯</span>
+		<span>减肥灵药</span>
+		<span>成人用品</span>
+		<span>飞机杯</span>
+		<span>减肥灵药</span>
+	</div>
+</div>
+</section>
+<!-- 搜索结果 -->
+<section>
+<div class="in_list">
+
+</div>
+</section>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+var pageSize = 10,
+    pageNo = 1;
+//dom加载后执行
+$(document).ready(function(){
+	$(".search-info").show();
+	$(".in_list").hide();
+	getKeyWord();//获取关键字
+});
+//获取关键字
+function getKeyWord(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=16&top=12"));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+		    type : 16,
+		    top : 12,
+		},function(result){
+			setKeyWord(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setKeyWord(result);
+	}
+}
+//填充关键字
+function setKeyWord(result){
+	var res = result.data;
+	var arr = new Array();
+	for(var i=0;i<res.length;i++){
+		arr.push("<span>"+res[i].keyword+"</span>");
+	}
+	$(".search-info-keylist").html(arr.join(""));
+	//搜索关键词点击事件 尼玛 这个绑定必须在异步请求成功后
+	$(".search-info-keylist span").bind("click", function(){
+		var keyword = $(this).html();
+		commonJs.searchPvStatistics(keyword);//搜索pv统计
+	});
+}
+
+//搜索按钮点击事件
+function searchClick(){
+	var keyword = $("#keyword").val();
+	if(keyword==""){
+		alert("请输入关键字");
+		return false;
+	}
+	commonJs.searchPvStatistics(keyword);//搜索pv统计
+}
+//加载搜索数据
+function loadData(loadType,keyword){
+	if(loadType == 1){
+		pageNo = 1;
+	}else if(loadType == 2){
+		//加载下一页数据
+		pageNo = pageNo + 1;
+	}
+	var result="";
+	try{
+		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=134&pageSize="+pageSize+"&pageNo="+pageNo+"&channel="+CHANNEL+"&keyword="+escape(keyword).replace(/%/g,"%25")+""))
+	}catch (e) {
+		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+		    type : 134,
+		    pageSize : pageSize,
+		    pageNo : pageNo,
+		    channel : CHANNEL,
+		    keyword : escape(keyword),
+		},function(result){
+			setData(result,pageNo);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setData(result,pageNo);
+	}	
+}
+//填充搜索数据
+function setData(result,pageNo){
+	var res = result.data;
+	if(pageNo==1){
+		if(res==""){
+			$(".in_list").html("暂无数据");
+		}else{
+			$(".in_list").html("");
+		}
+	}
+	for(var i = 0 ;i < res.length;i++){
+		var info = res[i];
+		var html = getHtmlByInfo(info);
+		$(".in_list").append(html);
+	}
+	$(".search-info").hide();
+	$(".in_list").show();
+}
+//html拼接
+function getHtmlByInfo(info){
+	var title = info.title;
+	var id = info.id;
+	title = title.substring(0,10);
+	var softIcon = info.icon;
+	var url = info.url;
+	var current_price = info.current_price;
+	var original_price = info.original_price;
+	var inventory = info.inventory;
+	return  "<div class=\"in_div\" onclick=\"gotoCommodityInfo(" + id + ")\" >"+
+			"<div class=\"in_goodimg\">"+
+			"<img src=\"" + softIcon + "\">"+
+			"</div>"+
+			"<div class=\"in_gooddescribe\">"+
+			"<div class=\"in_title\">"+
+			"<b>"+title+"</b>"+
+			"</div>"+
+			"<div class=\"in_price\">"+
+			"<div class=\"in_pricol1\" >￥"+current_price+"</div>"+
+			"<del class=\"in_pricol2\">￥"+original_price+"</del>"+
+			"</div>"+
+			"<span class=\"in_sellnum\">已售"+inventory+"件</span>"+
+			"</div>"+
+			"</div>";
+}
+//跳转到商品详情页
+function gotoCommodityInfo(id){
+	commonJs.goodsClassificationPvStatistics(id,localStorage.getItem("userId"),"sousuo");//搜索页中点击商品进入详情页pv统计
+}
+//滚动到底部，加载更多数据
+$(window).scroll(function() { 
+
+    //获取网页的完整高度(fix)  
+    var hght= document.documentElement.scrollHeight;  
+
+    //获取浏览器高度(fix)  
+    var clientHeight =document.documentElement.clientHeight;  
+
+     //获取网页滚过的高度(dynamic)  
+    var top = window.pageYOffset ||   
+                    (document.compatMode == 'CSS1Compat' ?    
+                    document.documentElement.scrollTop :   
+                    document.body.scrollTop);  
+    //当 top+clientHeight = scrollHeight的时候就说明到底儿了  
+    if(top>=(parseInt(hght)-clientHeight)-1){   
+		//加载下一页数据
+		loadData(2,$("#keyword").val());
+    }
+}); 
+</script>
+</body>
+</html>

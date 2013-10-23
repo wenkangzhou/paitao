@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+<title>关于拍掏</title>
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+    <div class="head_left">
+      <a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+    </div>
+    <span id="head_title">关于拍掏</span>
+    <div class="head_right">
+    </div>
+</div>
+<!-- 内容部分 -->
+<section>
+    <div class="about_main">
+        <div class="about_logo">
+          <img src="img/paitaoicon2.png">
+        </div>
+        <div class="about_title">拍掏购物</div>
+        <div class="about_version">v2.2</div>
+        <div class="about_block"><span id="version">已经是最新版本<span></div>
+        <div class="about_block">客服投诉热线：021- 32562377</div>
+        <div class="about_second_title">关注我们</div>
+        <div class="about_social_logo">
+          <img src="img/about_sina.png" onclick="socialClick(1)">
+          <img src="img/about_weixin.png" onclick="socialClick(2)">
+          <img src="img/about_qqwb.png" onclick="socialClick(3)">
+        </div>
+    </div>
+</section>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){
+   $(".about_version").html("V"+VERSIONNAME);
+    if(VERSIONCODE < 50){
+      $("#version").html("<a href=\"http://wedanke.com/software/downloadSoft/1\">检测更新(目前最新版本V2.2)</a>");
+    }
+});
+//分享图标点击事件
+function socialClick(type){
+    if(type=="1"){//新浪微博
+        commonJs.snsPvStatistics("新浪微博",1);//关注行为统计-点击关注微博按钮px统计
+    } else if(type=="2"){//微信
+        commonJs.snsPvStatistics("微信",2);//关注行为统计-点击关注微信按钮px统计
+    } else if(type=="3"){//腾讯微博
+        commonJs.snsPvStatistics("腾讯微博",3);//关注行为统计-点击关注腾讯微博按钮px统计
+    }
+}
+</script>
+</body>
+</html>

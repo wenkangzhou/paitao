@@ -1,0 +1,313 @@
+<!DOCTYPE HTML >
+<html>
+<head>
+<title>首页</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css"/>
+</head>
+<body>
+
+<div id="notNetwork" style="display: none;" onclick="reloadCurrentPage()">
+	
+	<div style="margin-top: 40%;">
+		<img src="img/nonetwork.png" style="width:70%;margin-left: 15%">
+	</div>
+	<p style="color:#d66a24;font-family: 微软雅黑;width: 100%;text-align: center;">亲，您的网络不给力！请检查一下网络设置</p>
+	
+</div>
+
+<div id="bodyHtml">
+
+	<!--顶部条-->
+	<div id="header">
+		<div class="head_left">
+			<a href="javascript:window.location.href='search.html'"><img src="img/search.png"></a>
+		</div>
+		<span id="head_title">拍淘购物</span>
+		<div class="head_right">
+			<a href="javascript:commonJs.goto_shopping_cart()">
+				<img src="img/shopcar.png">
+				<span id="shopping_cart_num">0</span>
+			</a>
+		</div>
+	</div>
+
+	<!--广告条-->
+	<div id="mySwipe" class="swipe">
+		<div class="swipe-wrap" id="swipe-wrap">
+			<div>
+				<img src="img/default_advert.jpg" alt="拍淘">
+			</div>
+		</div>
+	</div>
+
+	<!-- 热门推荐 -->
+	<section class="hotRecommend">
+		<span class="hotRecommend-header">
+			热门推荐
+		</span>
+		<nav>
+			<ul class="hotRecommend-img">
+				<li>
+					<a onclick="hotRecommendClick('http://www.baidu.com/')">
+						<img src="img/hotrecommend.jpg">
+					</a>
+					<a>
+						<img src="img/hotrecommend.jpg">
+					</a>
+				</li>
+				<li>
+					<a>
+						<img src="img/hotrecommend.jpg">
+					</a>
+					<a>
+						<img src="img/hotrecommend.jpg">
+					</a>
+				</li>
+			</ul>
+			<!-- 清除浮动 -->
+			<div style="clear:both;"></div> 
+		</nav>
+	</section>
+
+	<!-- 分类 -->
+	<section class="classification">
+		<div class="classification-part">
+			<div class="classification-one">
+				<a>
+					<img src="img/type002.jpg">
+				</a>
+			</div>
+			<div class="classification-two">
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<!-- 清除浮动 -->
+				<div style="clear:both;"></div> 
+			</div>		
+		</div>
+
+		<div class="classification-part">
+			<div class="classification-one">
+				<a>
+					<img src="img/type002.jpg">
+				</a>
+			</div>
+			<div class="classification-two">
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<span onclick="goToPage(100)">
+					<img src="./img/bag.png">
+					<p>短袖</p>
+				</span>
+				<!-- 清除浮动 -->
+				<div style="clear:both;"></div> 
+			</div>	
+		</div>
+	</section>
+
+</div>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script src="js/bottom.js"></script>
+<script src="js/swipe.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){ 
+	checkIsOnline()//检查网络
+	//loadData();//延时图片加载
+	setTimeout(loadadvertfromweb,1);//获取广告条数据
+	//获取热门推荐数据
+	getCategory()//获取分类数据
+	localStorage.setItem("isFirstStart","true");//设置启动标识
+	initUser();//初始化用户
+	commonJs.footStyleChange();//底部菜单样式变换
+	commonJs.doClearHistory();//清楚历史记录，防止返回时跳转到其它activity
+	commonJs.show_shopping_cart_num();//计算购物车里的商品数量
+});
+//检查是否互网
+function checkIsOnline(){
+	if(window.myAndroidJs!==undefined){
+		if(!window.myAndroidJs.checkNetwork()){
+			$("#bodyHtml").hide();
+			$("#notNetwork").show();
+		}
+	}
+}
+//加载图片
+function loadData(){
+	$(".lazy").each(function(){
+		var src=$(this).attr("src");
+		var temp=$(this).attr("data-original");
+		if(src!=temp){
+			$(this).attr("src",temp);
+		}
+	}); 
+}
+//获取广告条数据
+function loadadvertfromweb(){
+  	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.get_path("market?type=149&typeId=1&userId=366623"));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : "149",
+			"typeId" : "1",
+			"userId" : "366623",
+		},function(result){
+			getAdvertInfo(result.data);
+			loadData();//延时图片加载
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		getAdvertInfo(result.data);
+		loadData();//延时图片加载
+	}	
+}
+//填充广告条数据
+function getAdvertInfo(advertList){
+	$("#swipe-wrap").html("");
+	for(var j = 0 ;j < advertList.length;j++){
+		var advert = advertList[j];
+		$("#swipe-wrap").append("<div id=\"advertorder"+j+"\"><a onclick=\"gotoAdvertInfo('" + advert.toLink + "'," + advert.id + ",'shouyetop'," + j+1 + ")\"><img class=\"lazy\" width=\""+$(window).width()+"\" height=\"124\" style=\"display: block;\" src=\"img/default_advert.jpg\" data-original=\"" + advert.fileName + "\" /></a></div>");
+		if(j == advertList.length-1){
+			var elem = document.getElementById("mySwipe");
+			var mySwipe = Swipe(elem, {
+			  	    auto: 3000,
+			  	    continuous: true
+				});
+		}
+	};
+}
+//跳转到banner广告的详细页
+function gotoAdvertInfo(url,id,adver_place,sort){
+	commonJs.advertPvStatistics(id,adver_place,sort,url);//banner广告点击pv统计
+}
+//获取分类数据
+function getCategory(){
+	var result="";
+	try{
+		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=173"))
+	}catch (e) {
+		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			type:173
+		},function(json){
+			if(json.result=="1"){
+				getCategoryInfo(json);
+			}
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		if(result.result=="1"){
+			getCategoryInfo(result);
+		}
+	}	
+}
+//填充分类信息
+function getCategoryInfo(json){
+	var arr = new Array();
+	for(var i =0 ;i< json.data.length;i++){
+		var father = json.data[i];
+		arr.push("<div class=\"classification-part\">");
+		arr.push("<div class=\"classification-one\">");
+		arr.push("<a onclick=\"gotoOneClassification("+father.id+")\"><img src=\"img/type002.jpg\"></a>");
+		arr.push("</div>");
+		arr.push("<div class=\"classification-two\">");
+		for(var j=0;j<father.childrenCount;j++){
+			var child = father.childrenList[j];
+			arr.push("<span onclick=\"gotoTwoClassification("+child.id+")\">");
+			arr.push("<img src=\"./img/bag.png\">");
+			arr.push("<p>"+child.name+"</p>");
+			arr.push("</span>");
+		}
+		arr.push("<div style=\"clear:both;\"></div>");
+		arr.push("</div>");
+		arr.push("</div>");
+	}
+	$(".classification").html(arr.join(""));
+}
+//跳转到一级分类
+function gotoOneClassification(key){
+	commonJs.classificationPvStatistics(key,1);//首页中一级分类PV统计
+}	
+//跳转到二级分类
+function gotoTwoClassification(key){
+	commonJs.classificationPvStatistics(key,2);//首页中二级分类PV统计
+}	
+//初始化用户
+function initUser(){
+	var userId = localStorage.getItem("userId");
+	if(userId == null || userId == undefined || userId == ""){
+		/**
+		 * 首次访问客户端，新增一个游客用户
+		 */
+		var result="";
+	  	try{
+	  		result = window.myAndroidJs.doPostHttpRequest(commonJs.get_path("market?type=204"));
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+				"type" : "204",
+			},function(result){
+				localStorage.setItem("userId",result.data.id);//用户id
+				localStorage.setItem("userNick",result.data.nickName);//用户昵称
+			});
+		}
+		if(result!="")
+		{
+			result = JSON.parse(result);
+			localStorage.setItem("userId",result.data.id);//用户id
+			localStorage.setItem("userNick",result.data.nickName);//用户昵称
+		}
+	}
+}
+//热门推荐点击事件
+function hotRecommendClick(url){
+	commonJs.hotRecommendPvStatistics(url);//热门推荐pv统计
+}
+</script>
+</body>
+</html>

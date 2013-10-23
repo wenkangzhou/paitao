@@ -1,0 +1,216 @@
+<!DOCTYPE HTML >
+<html>
+<head>
+<title>抢购</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css"/>
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:window.location.href='search.html'"><img src="img/search.png"></a>
+	</div>
+	<span id="head_title">抢购</span>
+	<div class="head_right">
+		<a href="javascript:commonJs.goto_shopping_cart()">
+			<img src="img/shopcar.png">
+			<span id="shopping_cart_num">0</span>
+		</a>
+	</div>
+</div>
+<!-- 华丽的分割线 -->
+<section>
+	<div class="line">
+		<div class="line-left">
+			<hr color="#e17777">
+		</div>
+		<span>正在抢购</span>
+		<div class="line-right">
+			<hr color="#e17777">
+		</div>
+	</div>
+</section>
+<!-- 内容部分 -->
+<section>
+	<div class="qg-list">
+		<ul>
+			<li onclick="gotoCommodityInfo(96205)">
+				<div class="qg-list-title">999韩国寸金十足八百就是一百就是一百就是一</div>
+				<div class="qg-list-info">
+					<div class="qg-list-info-left">
+						<img src="img/default_advert.jpg">
+					</div>
+					<div class="qg-list-info-mid">
+						<img src="img/qg_line_bg.png">
+					</div>
+					<div class="qg-list-info-right">
+						<div class="qg-list-info-right-up">
+							<span class="qg-list-info-right-up-label">抢购价</span>
+							<span class="qg-list-info-right-up-price">￥929.00</span>
+						</div>
+						<div class="qg-list-info-right-line"><img src="img/qg_hline_bg.png"></div>
+						<div class="qg-list-info-right-mid">
+							<span class="qg-list-info-right-up-originalprice">原价:59.00</span>
+							<span class="qg-list-info-right-up-inventory">已售:127</span>
+						</div>
+						<div class="qg-list-info-right-line"><img src="img/qg_hline_bg.png"></div>
+						<div class="qg-list-info-right-down">
+							<div class="qg-list-info-right-down-clock"><img src="img/qg_clock.png"></div>
+							<span class="qg-list-info-right-down-time" id="96205">24时59分59秒</span>
+							<div class="qg-list-info-right-down-go"><img src="img/qg_go.png"></div>
+						</div>
+					</div>
+				</div>
+			</li>
+			<li>
+				<div class="qg-list-title">999韩国寸金十足八百就是一百就是一百就是一</div>
+				<div class="qg-list-info">
+					<div class="qg-list-info-left">
+						<img src="img/default_advert.jpg">
+					</div>
+					<div class="qg-list-info-mid">
+						<img src="img/qg_line_bg.png">
+					</div>
+					<div class="qg-list-info-right">
+						<div class="qg-list-info-right-up">
+							<span class="qg-list-info-right-up-label">抢购价</span>
+							<span class="qg-list-info-right-up-price">￥929.00</span>
+						</div>
+						<div class="qg-list-info-right-line"><img src="img/qg_hline_bg.png"></div>
+						<div class="qg-list-info-right-mid">
+							<span class="qg-list-info-right-up-originalprice">原价:59.00</span>
+							<span class="qg-list-info-right-up-inventory">已售:127</span>
+						</div>
+						<div class="qg-list-info-right-line"><img src="img/qg_hline_bg.png"></div>
+						<div class="qg-list-info-right-down">
+							<div class="qg-list-info-right-down-clock"><img src="img/qg_clock.png"></div>
+							<span class="qg-list-info-right-down-time">24时59分59秒</span>
+							<div class="qg-list-info-right-down-go"><img src="img/qg_go.png"></div>
+						</div>
+					</div>
+				</div>
+			</li>
+		<ul>
+	</div>
+</section>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script src="js/bottom.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){ 
+	getData();//获取抢购商品信息
+	commonJs.footStyleChange();//底部菜单样式变换
+	commonJs.doClearHistory();//清楚历史记录，防止返回时跳转到其它activity
+	commonJs.show_shopping_cart_num();//计算购物车里的商品数量
+});
+//获取抢购商品信息
+function getData(){
+  	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=130"));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+		    "type" : "130"
+		},function(result){
+			setData(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setData(result);
+	}
+}
+//填充抢购商品信息
+function setData(result){
+	var res = result.data;
+	$(".qg-list").html("");
+	$(".qg-list").append("<ul>");
+	for(var i = 0 ;i < res.length;i++){
+		var info = res[i];
+		var html = getHtmlByInfo(info);
+		$(".qg-list").append(html);
+	}
+	$(".qg-list").append("</ul>");
+}
+//html拼接
+function getHtmlByInfo(info){
+	var id = info.id;
+	var title = info.title;
+	var thumbnail = commonJs.getLinkUrl('http://res.wemedias.com:8080/client/upload/taoicon/',info.thumbnail);
+	var discount = info.discount;
+	discount = Math.floor(discount);
+	var current_price = info.current_price;
+	var original_price = info.original_price;
+	var inventory = info.inventory;
+	var t = info.timen;
+	if(t==null){
+		t = 0;
+	} 
+	var arr = new Array();
+	arr.push("<li onclick=\"gotoCommodityInfo("+ id + ")\">");
+	arr.push("<div class=\"qg-list-title\">"+ title + "</div>");
+	arr.push("<div class=\"qg-list-info\">");
+	arr.push("<div class=\"qg-list-info-left\">");
+	arr.push("<img src=\""+ thumbnail + "\">");
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-mid\">");
+	arr.push("<img src=\"img/qg_line_bg.png\">");
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-right\">");
+	arr.push("<div class=\"qg-list-info-right-up\">");
+	arr.push("<span class=\"qg-list-info-right-up-label\">抢购价</span>");
+	arr.push("<span class=\"qg-list-info-right-up-price\">￥"+ current_price + "</span>");
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-right-line\"><img src=\"img/qg_hline_bg.png\"></div>");
+	arr.push("<div class=\"qg-list-info-right-mid\">");
+	arr.push("<span class=\"qg-list-info-right-up-originalprice\">原价:"+ original_price + "</span>");
+	arr.push("<span class=\"qg-list-info-right-up-inventory\">已售:"+ inventory + "</span>");
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-right-line\"><img src=\"img/qg_hline_bg.png\"></div>");
+	arr.push("<div class=\"qg-list-info-right-down\">");
+	arr.push("<div class=\"qg-list-info-right-down-clock\"><img src=\"img/qg_clock.png\"></div>");
+	arr.push("<span class=\"qg-list-info-right-down-time\" id=\""+id+"\">0时0分0秒</span>");
+	arr.push("<div class=\"qg-list-info-right-down-go\"><img src=\"img/qg_go.png\"></div>");
+	arr.push("</div>");
+	arr.push("</div>");
+	arr.push("</div>");
+	arr.push("</li>");
+	arr.push("<script>show_date_time("+t+"," +id+ ",0);<\/script>");
+	return arr.join("");
+}	
+//抢购时间倒计时
+function show_date_time(timen, id,type) {
+	timeold = timen;
+	timen = timen - 1000;
+	if(type==1){
+		window.setTimeout("show_date_time(" + timen + "," + id + ",1)", 1000);
+	}
+	sectimeold = timeold / 1000;
+	secondsold = Math.floor(sectimeold);
+	msPerDay = 24 * 60 * 60 * 1000;
+	e_daysold = timeold / msPerDay;
+	daysold = Math.floor(e_daysold);
+	e_hrsold = (e_daysold - daysold) * 24;
+	hrsold = Math.floor(e_hrsold);
+	e_minsold = (e_hrsold - hrsold) * 60;
+	minsold = Math.floor((e_hrsold - hrsold) * 60);
+	seconds = Math.floor((e_minsold - minsold) * 60);
+	if (daysold < 0) {
+		daysold = 0;
+		hrsold = 0;
+		minsold = 0;
+		seconds = 0;
+	}
+	$("#" + id).html(hrsold + "时" + minsold + "分" + seconds + "秒");
+}
+//跳转到商品详情页
+function gotoCommodityInfo(id){
+	commonJs.goodsClassificationPvStatistics(id,localStorage.getItem("userId"),"qianggou");//抢购页点击商品进入详情页pv统计
+}
+</script>
+</body>
+</html>

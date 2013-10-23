@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>订单详情</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">订单详情</span>
+	<div class="head_right">
+	</div>
+</div>
+<!-- 内容部分 -->
+<div id="main" class="orderbg">
+<!-- 	<div class="order_title">
+		<p>
+			订单状态(<span id="orderid"></span>)
+			<span style="margin-left: 30%" class="ord_ztcol5" id="status"></span>
+		</p>
+	</div> -->
+	<span id="commodityDetail">
+	</span>
+	<div class="order_detail_title">
+		<p>收货地址</p>
+	</div>
+	<div class="orddet_shdz">
+		<div class="orddet_shleft1">地址</div>
+		<p class="orddet_shright"><span id="address"></span></p>
+		<div style="clear: both"></div>
+		<div class="orddet_shleft1">姓名</div>
+		<div class="orddet_shright"><span id="consignee"></span></div>
+		<div style="clear: both"></div>
+		<div class="orddet_shleft">电话</div>
+		<div class="orddet_shright"><span id="phone"></span></div>
+		<div style="clear: both"></div>
+	</div>
+	<div class="order_detail_title">
+		<p>订单信息</p>
+	</div>
+	<div class="orddet_shdz">
+		<div class="orddet_shleft1">订单号</div>
+		<p class="orddet_shright"><span id="orderid"></span></p>
+		<div style="clear: both"></div>
+		<div class="orddet_shleft1">订单日期</div>
+		<p class="orddet_shright"><span id="time"></span></p>
+		<div style="clear: both"></div>
+		<div class="orddet_shleft1">订单状态</div>
+		<p class="orddet_shright"><span id="status"></span></p>
+		<div style="clear: both"></div>
+	</div>
+	<div style="clear: both"></div>
+	<span id="consult"></span>
+</div>
+
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){
+	getDetail();//获取订单详情
+});
+//获取订单详情
+function getDetail(id){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=185&id="+commonJs.getParam("id")+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+		   type : 185,
+		   id : commonJs.getParam("id")
+		},function(result){
+			setDetail(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setDetail(result);
+	}
+}
+//填充订单详情
+function setDetail(result){
+	if(result.result == "1"){
+		var orderid = result.data.order.id;
+		var status = result.data.order.status;
+		var address = result.data.order.address;
+		var consignee = result.data.order.consignee;
+		var phone = result.data.order.phone;
+		var time = result.data.order.time;
+		var channelId = result.data.order.channelId;
+		$("#orderid").html(orderid);
+		switch (status) {
+			case 1:
+				$("#status").html("已确认");
+				break;
+			case 5:
+				$("#status").html("已发货");
+				break;
+			case 6:
+				$("#status").html("交易取消");
+				break;
+			case 7:
+				$("#status").html("交易成功");
+				break;
+			default:
+				$("#status").html("未确认");
+				break;
+		}
+		$("#address").html(address);
+		$("#consignee").html(consignee);
+		$("#phone").html(phone);
+		$("#time").html(time);
+		$("#consult").html("<div class=\"order_btn\" onclick=\"goto_board("+orderid+","+channelId+");\"> 客服咨询</div>");
+		var arr = new Array("");
+		var o = result.data.commodityList;
+		for(var i=0;i<o.length;i++){
+			arr.push("<div class=\"orddet_xq\">");
+			arr.push("<div class=\"order_detail_img\">");
+			arr.push("<img src="+o[i].icon+" ></div>");
+			arr.push("<div class=\"orddet_xqright\">");
+			arr.push("<font class=\"orddet_xqtit\">"+o[i].name+"</font>");
+			arr.push("<span class=\"orddet_color\">颜色:"+o[i].color+"</span><span class=\"orddet_size\">尺码:"+o[i].size+"</span>");
+			arr.push("<div class=\"orddet_goodnum\">数量:"+o[i].num+"</div>");
+			arr.push("<div class=\"orddet_pri\">￥<font>");
+			if(o[i].currentPrice==0.00){
+				arr.push("0</font>");
+			} else{
+				arr.push(""+o[i].currentPrice+"</font>");
+			}
+			arr.push("</div></div></div>");
+		}
+		$("#commodityDetail").html(arr.join(""));
+	}
+}
+function goto_board(id,channelId){
+	window.localStorage.setItem("message_talk.html","message_talk.html?orderId="+id+"&channelId="+channelId);
+	window.location.href="message_talk.html";
+}
+</script>
+</body>
+</html>

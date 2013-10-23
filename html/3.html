@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>特卖专区</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+	</div>
+	<span id="head_title">特卖专区</span>
+	<div class="head_right">
+		<a href="javascript:commonJs.goto_shopping_cart()">
+			<img src="img/shopcar.png">
+			<span id="shopping_cart_num">0</span>
+		</a>
+	</div>
+</div>
+<!-- 内容部分 -->
+<div class="special_list" id="special_info">
+
+</div>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script src="js/bottom.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){ 
+	setTimeout(special_group_list());//获取特卖数据
+	commonJs.footStyleChange();//底部菜单样式变换
+	commonJs.doClearHistory();//清楚历史记录，防止返回时跳转到其它activity
+	commonJs.show_shopping_cart_num();//计算购物车里的商品数量
+});
+//获取特卖数据
+function special_group_list(){
+	var result="";
+		try{
+			result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=170"))
+		}catch (e) {
+			$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+				type:170
+			},function(result){
+				set_special_group_list(result);
+			});
+		}
+		if(result!="")
+		{
+			result = JSON.parse(result);
+			set_special_group_list(result);
+		}
+}
+//填充特卖数据
+function set_special_group_list(result){
+	if(result.result=="1"){
+		var arr = new Array();
+		for ( var i in result.data) {
+			var group = result.data[i];
+			arr.push("<div class=\"special_title\">");	
+			arr.push(group.name);	
+			arr.push("</div>");	
+			for ( var j in group.goodsList) {
+				var goods = group.goodsList[j];
+				if(j % 2 == 0){
+					arr.push("<div class=\"special_row\">");
+					arr.push("<div class=\"special_left\">");
+				}else{
+					arr.push("<div class=\"special_right\">");
+				}
+				arr.push("<div class=\"special_img\">");
+				arr.push("<img onclick=\"gotoCommodityInfo('"+goods.softId+"')\" src=\"");
+				arr.push(goods.samllPicture);
+				arr.push("\"></div>");
+				arr.push("<p class=\"special_name\">");
+				arr.push(goods.name);
+				arr.push("</p>");
+				arr.push("<div class=\"special_bottom\">");
+				arr.push("<span class=\"special_price\">￥");
+				arr.push(goods.currentPrice);
+				arr.push("</span><span class=\"special_mun\"><del>原价:￥");
+				arr.push(goods.originalPrice);
+				arr.push("</del></span></div></div>");
+				if(j % 2 != 0 || j == group.goodsList.length - 1){
+					arr.push("</div>");
+				}
+			}
+			arr.push("<span class=\"special_more\" onclick=\"goto_more("+group.id+",'"+group.name+"');\">点击查看专区更多商品>></span>");
+		}
+		$("#special_info").html(arr.join(""));
+	}
+}
+//跳转到商品详情页
+function gotoCommodityInfo(id){
+	commonJs.goodsClassificationPvStatistics(id,localStorage.getItem("userId"),"temai");//分类目录中点击商品进入详情页pv统计
+}
+//查看更多
+function goto_more(id,name){
+	commonJs.specialSellPvStatistics(id,name);//点击特卖区"查看更多"pv统计
+}
+</script>
+</body>
+</html>

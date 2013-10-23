@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>填写订单</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">填写订单</span>
+	<div class="head_right">
+	</div>
+</div>
+<!-- 内容部分 -->
+<div id="main" class="orderbg">
+	<div class="order_xq"> 
+		<div class="order_img" id="icon">
+			<span id="icon"></span>	
+		</div>
+		<div class="order_good"> 
+			<font class="order_goodtit">
+				<span id="title"></span>
+			</font>
+			<span class="order_color">
+				颜色:<span id="color"></span>
+			</span>
+			<span class="order_size" >
+				尺码:<span id="size"></span>
+			</span>		
+			<div class="order_goodnum">
+				数量:<font>
+						<input type="text" value="1" name="number" size="1" id="number" onchange="changeNum();" border="0">
+					</font>
+			</div>	
+		</div>
+	</div>
+	<div class="order_title">
+		<p>收件人信息(<span class="order_xing">*</span>为必填项）</p>
+	</div>
+	<div class="order_peo">
+		<p class="order_peotit">
+			<span class="order_xing">*</span>手机号码:
+		</p>
+		<input id="phone" name="phone" type="text" class="order_icc1" >
+		<p class="order_peotit">
+			<span class="order_xing">*</span>收件人:
+		</p>
+		<input id="name" name="consignee" type="text" class="order_icc1">
+		<p class="order_peotit">
+			<span class="order_xing">*</span>收件人地址:
+		</p>
+		<div class="order_sheng">
+			<input type="text"  class="order_input" placeholder="请选择省">
+			<select class="order_select" id="province" name="province" onchange="get_expressfree_price(this);">
+				<option>-选择-</option>
+			</select>
+		</div>
+		<div class="order_shi">
+			<input type="text" class="order_input" placeholder="请选择市">
+			<select class="order_select" id="city" name="city" onmousedown="selectEmpty();">
+			<option>-选择-</option></select>
+		</div>
+		<br><br>
+		<input id="address" name="address" type="text" class="order_icc1" placeholder="请填写详细地址">
+	</div>
+	<div class="order_title">
+		<p>金额结算</p>
+	</div>
+	<p class="order_peotit">商品价格：<font class="order_goodpri1" id="currentPrice"></font>元</p>
+	<p class="order_peotit">运输快递：<font class="order_goodpri1" id="goods_express_price"><span id="expressFree"></span></font>元</p>
+	<p class="order_peotit">应付金额：<font class="order_goodpri1" id="goods_total"></font>元</p>
+	<p class="order_peotit" style="display: none">赠送拍淘积分：124分</p>
+	<p class="order_peotit">支付方式：货到付款</p>
+	<div class="order_btn" onclick="sub();"> 提交订单</div>
+</div>
+<!-- 隐藏域 -->
+<input type="hidden" id="_currentPrice"/>
+
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script src="js/cityselect.js"></script>
+<script>
+var _goods;
+//dom加载后执行
+$(document).ready(function() {
+	SelectN.setProperties({valueKey:'text'}); //重新设定各属性的键值
+	SelectN(data, 'province', 'city'); //初始化级联关系
+	getCommodityInfo();//获取商品详情信息
+	getUserInfo();//获取用户信息
+});
+//获取商品详情信息
+function getCommodityInfo(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=174&id="+commonJs.getParam('id')+"&imei="+IMEI+"&channel="+CHANNEL+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : 174,
+			"id" : commonJs.getParam("id"),
+			"imei" : IMEI,
+			"channel":CHANNEL
+		},function(result){
+			setCommodityInfo(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setCommodityInfo(result);
+	}
+}
+//填充商品详情信息
+function setCommodityInfo(result){
+	if(result.result == "1"){
+		_goods = result.data;
+		var icon = _goods.icon;
+		var name = _goods.name;
+		var currentPrice = _goods.currentPrice;
+		var color = commonJs.getParam("color");
+		var size = commonJs.getParam("size");
+		var expressFree = _goods.expressFree;
+		$("#icon").html("<img src="+icon+"> ");
+		$("#title").html(name);
+		$("#currentPrice").html(currentPrice);
+		$("#expressFree").html(expressFree);
+		$("#goods_total").html(currentPrice+expressFree);
+		$("#color").html(color);
+		$("#size").html(size);
+		$("#_currentPrice").val(currentPrice);
+	}
+}
+//获取用户信息
+function getUserInfo(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=163&userId="+localStorage.getItem("userId")+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : 163,
+			"userId" : localStorage.getItem("userId"),
+		},function(result){
+			setUserInfo(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setUserInfo(result);
+	}
+}
+//填充用户信息
+function setUserInfo(result){
+	var json = result.data;
+	var info = json.consigneeInfo;
+	if(info!==undefined){
+		$("#name").val(info.consignee);
+		$("#address").val(info.consigneeAddress);
+		$("#phone").val(info.consigneeMoble);
+		$("#province option[value='"+info.consigneeProvince+"']").attr("selected", "selected");
+		autopaddingCity(info.consigneeProvince,info.consigneeCity);
+	}
+}
+//填充省市信息
+function autopaddingCity(province,city){
+	var p_id = null;
+	var arr = new Array();
+	for ( var i = 0;i < data.length;i++) {
+		var json = data[i];
+		if(json.parent == '-' && json.text == province){
+			p_id = json.id;
+			break;
+		}
+	}
+	if(p_id == null){
+		return ;
+	}
+	for ( var i = 0;i < data.length;i++) {
+		var json = data[i];
+		if(json.parent == p_id){
+			arr.push('<option value="');
+			arr.push(json.text);
+			arr.push('">');
+			arr.push(json.text);
+			arr.push('</option>');
+		}
+	}
+	$("#city").append(arr.join(''));
+	$("#city option[value='"+city+"']").attr("selected", "selected");
+}
+//提交订单点击事件
+function sub(){
+	if(checkForm()){	
+		var result="";
+	  	try{
+	  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=183&commodityId="+_goods.newId+"&phone="+$("#phone").val()+"&imei="+ACTIVATENUMBER+"&number="+$("#number").val()+"&channelCode="+CHANNEL+"&consignee="+escape($("#name").val()).replace(/%/g,"%25")+"&province="+escape($("#province").val()).replace(/%/g,"%25")+"&city="+escape($("#city").val()).replace(/%/g,"%25")+"&address="+escape($("#address").val()).replace(/%/g,"%25")+"&size="+commonJs.getParam('size').replace(/%/g,"%25")+"&color="+escape(commonJs.getParam('color')).replace(/%/g,"%25")+""));
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+				"type" : 183,
+				"commodityId" : _goods.newId,
+				"phone" : $("#phone").val(),
+				"imei":ACTIVATENUMBER,
+				"number":$("#number").val(),
+				"channelCode":CHANNEL,
+				"consignee":escape($("#name").val()),
+				"province":escape($("#province").val()),
+				"city":escape($("#city").val()),
+				"address":escape($("#address").val()),
+				"size":commonJs.getParam("size"),
+				"color":commonJs.getParam("color"),
+			},function(result){
+				if(result.result ==1){
+					window.location.href = "ordertab_ok.html";
+				}
+				else{
+					alert(result.msg);
+				}
+			});
+		}
+		if(result!="")
+		{
+			//result = eval('('+ result +')');
+			result = JSON.parse(result);
+			if(result.result ==1){
+				window.location.href = "ordertab_ok.html";
+			}
+			else{
+				alert(result.msg);
+			}
+		}	
+	}
+}
+//表单验证
+function checkForm(){
+	var r = /^[0-9]\d*$/;
+	var phone = document.getElementById("phone").value.replace(/[ ]/g,"");
+	if(phone==""||phone.length!=11||!r.test(phone)){
+		alert("请填写正确的手机号码");
+		return false;
+	}
+	if(document.getElementById("name").value==""){
+		alert("请填写收货人姓名");
+		return false;
+	}
+	if(document.getElementById("province").value=="-选择-"){
+		alert("请选择您所在的省");
+		return false;
+	}
+	if(document.getElementById("city").value=="-选择-"){
+		alert("请选择您所在的市");
+		return false;
+	}
+	if(document.getElementById("address").value==""){
+		alert("请填写收货地址'");
+		return false;
+	}
+	if(changeNum()){
+		return true;
+	} else{
+		return false;
+	}
+}
+//商品数量验证 价钱计算
+function changeNum(){
+	var number = $("#number").val();
+	var r = /^[0-9]\d*$/;
+	if(!r.test(number)){
+		alert("请输入正确的商品数量");
+		return false;
+	}
+	if(number==0){
+		alert("请输入正确的商品数量");
+		return false;
+	}
+	var current_price = $("#_currentPrice").val();
+	var goods_total = current_price*number;
+	var goods_express_price = parseInt($("#goods_express_price").text());
+	$("#currentPrice").html(goods_total.toFixed(1));
+	$("#goods_total").html((goods_total + goods_express_price).toFixed(1));
+	return true;
+}
+//省市验证
+function selectEmpty(){
+	var v = $("#province").val();
+	if(v == null || v == '-选择-'){
+		alert('请选择省');
+		return;
+	}
+}
+//获取快递费
+function get_expressfree_price(obj){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=156&commodityId="+commonJs.getParam('id')+"&area="+escape($(obj).find("option:selected").text()).replace(/%/g,"%25")+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : 156,
+			"commodityId" : commonJs.getParam("id"),
+			"area" : escape($(obj).find("option:selected").text()),
+		},function(result){
+			set_expressfree_price(result)
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		set_expressfree_price(result)
+	}
+}
+//填充快递费
+function set_expressfree_price(result){
+	if(result.result == "1"){
+		if(result.data == null || result.data == "" || result.data === undefined || 
+				 result.data.price == null || result.data.price == "" || result.data.price === undefined){
+			  $("#goods_express_price").html("0.0");
+			  return false;
+		}else{
+			  $("#goods_express_price").html(result.data.price);
+			  if($("#_currentPrice").val()==""||$("#_currentPrice").val()==null){
+			  	$("#_currentPrice").val("0.0");
+			  }
+			  var a = parseFloat($("#_currentPrice").val());
+			  var b = parseFloat(result.data.price);
+			  $("#goods_total").text((a + b).toFixed(1));
+		}
+	}
+}
+</script>
+</body>
+</html>

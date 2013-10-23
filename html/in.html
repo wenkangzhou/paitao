@@ -1,0 +1,196 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<title>分类商品列表</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">分类</span>
+	<div class="head_right">
+		<a href="javascript:commonJs.goto_shopping_cart()">
+			<img src="img/shopcar.png">
+			<span id="shopping_cart_num">0</span>
+		</a>
+	</div>
+</div>
+<!-- 排序栏 -->
+<section>
+	<ul class="orderItem">
+        <li><a id="tab0" href="javascript:void(0)" class="selected" data-type="salesVolume">销量</a></li>
+        <li><a id="tab1" href="javascript:void(0)" data-type="popularity">人气</a></li>
+        <li><a id="tab2" href="javascript:void(0)" data-type="newest">最新</a></li>
+        <li><a id="tab3" href="javascript:void(0)" data-type="price">价格</a></li>
+    </ul>
+</section>
+<!-- 分类列表 -->
+<div class="in_list" id="list_div">
+
+</div>
+
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+
+	var key = commonJs.getParam("key");
+	var userId = "366623";
+	var pageSize = 20;
+	var pageNo = 1;
+	var time;
+
+	$(document).ready(function(){
+		loadData(1,"salesVolume");//读取分类数据 默认是salesVolume
+		commonJs.show_shopping_cart_num();//计算购物车里的商品数量
+		getHeaderTitle();//获取标题头
+	});
+
+	//读取分类数据
+ 	function loadData(loadType,orderField){
+ 		localStorage.setItem("orderField",orderField);//记住排序分类，以便加载更多时使用
+		//加载第一页数据(刚打开页面的时候)
+		if(loadType == 1){
+			pageNo = 1;
+			time = "";
+		}else if(loadType == 2){
+			//加载下一页数据
+			pageNo = pageNo + 1;
+		}
+		
+		var result="";
+	  	try{
+	  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=129&userId="+userId+"&stype="+key+"&time="+time+"&pageSize="+pageSize+"&pageNo="+pageNo+"&channel="+CHANNEL+"&orderField="+orderField+""))
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			    type : 129,
+			    userId : userId,
+			    stype : key,
+			    time : time,
+			    pageSize : pageSize,
+			    pageNo : pageNo,
+			    channel : CHANNEL,
+			    orderField : orderField,
+			},function(result){
+				var res = result.data;
+				getDataInfo(res,pageNo);
+			});
+		}
+		if(result!="")
+		{
+			result = eval('('+ result +')');
+			//result = JSON.parse(result);
+			var res = result.data;
+			getDataInfo(res,pageNo);
+		}	
+	}
+	//填充分类内容
+	function getDataInfo(res,pageNo){
+		if(pageNo==1){
+			$("#list_div").html("");
+			if(res.length==0){
+				$("#list_div").html("暂无数据");
+			}
+		}
+
+		for(var i = 0 ;i < res.length;i++){
+			var info = res[i];		
+			var html = getHtmlByInfo(info);
+			$("#list_div").append(html);
+		}
+	}
+
+	//分类html拼接
+	function getHtmlByInfo(info){
+		var title = info.title;
+		var id = info.id;
+		var softIcon = info.icon;
+		var url = info.url;
+		var current_price = info.current_price;
+		var original_price = info.original_price;
+		var inventory = info.inventory;
+		return  "<div class=\"in_div\" onclick=\"gotoCommodityInfo(" + id + ")\" >"+
+				"<div class=\"in_goodimg\">"+
+				"<img src=\"" + softIcon + "\">"+
+				"</div>"+
+				"<div class=\"in_gooddescribe\">"+
+				"<div class=\"in_title\">"+
+				"<b>"+title+"</b>"+
+				"</div>"+
+				"<div class=\"in_price\">"+
+				"<div class=\"in_pricol1\" >￥"+current_price+"</div>"+
+				"<del class=\"in_pricol2\">￥"+original_price+"</del>"+
+				"</div>"+
+				"<span class=\"in_sellnum\">已售"+inventory+"件</span>"+
+				"</div>"+
+				"</div>";
+	}
+
+	//跳转到商品详情页
+	function gotoCommodityInfo(id){
+		commonJs.goodsClassificationPvStatistics(id,localStorage.getItem("userId"),"fenlei");//分类目录中点击商品进入详情页pv统计
+	}
+
+	//获取标题头
+ 	function getHeaderTitle(){
+ 		var result="";
+	  	try{
+	  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=205&id="+key+""))
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			   type : 205,
+			   id : key,
+			},function(result){
+				$("#head_title").html(result.data.name);
+			});
+		}
+		if(result!="")
+		{
+			result = JSON.parse(result);
+			$("#head_title").html(result.data.name);
+		}
+	}
+	//排序栏点击事件绑定
+	$(".orderItem li a").bind('click', function(){
+		var type = $(this).attr("data-type");
+		$(".orderItem li a").removeClass("selected");
+		$(this).addClass("selected");
+		if(type=="salesVolume"){
+			commonJs.orderItemPvStatistics(1,"销量","salesVolume")//列表排序pv统计-销量
+		} else if(type=="popularity"){
+			commonJs.orderItemPvStatistics(1,"人气","popularity")//列表排序pv统计-人气
+		} else if(type=="newest"){
+			commonJs.orderItemPvStatistics(1,"最新","")//列表排序pv统计-最新
+		} else if(type=="price"){
+			commonJs.orderItemPvStatistics(1,"价格","price")//列表排序pv统计-价格
+		}
+	});
+	//滚动到底部，加载更多数据
+	$(window).scroll(function() { 
+
+        //获取网页的完整高度(fix)  
+        var hght= document.documentElement.scrollHeight;  
+  
+        //获取浏览器高度(fix)  
+        var clientHeight =document.documentElement.clientHeight;  
+  
+         //获取网页滚过的高度(dynamic)  
+        var top = window.pageYOffset ||   
+                        (document.compatMode == 'CSS1Compat' ?    
+                        document.documentElement.scrollTop :   
+                        document.body.scrollTop);  
+        //当 top+clientHeight = scrollHeight的时候就说明到底儿了  
+        if(top>=(parseInt(hght)-clientHeight)-1){   
+			//加载下一页数据
+			loadData(2,localStorage.getItem("orderField"));
+	    }
+    });  
+
+</script>
+</body>
+</html>
+

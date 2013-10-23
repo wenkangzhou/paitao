@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>注册</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">注册</span>
+	<div class="head_right">
+	</div>
+</div>
+<!-- 内容部分 -->
+<section>
+	<div class="login-frame">
+		<ul>
+			<li>
+				<img src="img/reg_username.png">
+				<input id="J_username" name="username" type="text" class="log-inp" placeholder="请输入用户名(手机号)" />
+			</li>
+			<li>
+				<img src="img/reg_psd.png">
+				<input id="J_password" name="password" type="password" class="log-inp" placeholder="请输入密码"/>
+			</li>
+			<li>
+				<img src="img/reg_psd.png">
+				<input id="J_repassword" name="repassword" type="password" class="log-inp" placeholder="请再次输入密码"/>
+			</li>
+		</ul>
+	</div>
+	<div id="Mes"></div>
+	<a id="J_submit" href="javascript:;" class="down-btn">注册</a>	
+</section>
+
+<script type="text/javascript" src="js/jq.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+//注册点击事件
+$("#J_submit").click( function() {
+	var username = $("#J_username"),
+	  	password = $("#J_password"),
+	  	repassword = $("#J_repassword");
+	if(!checkPhonenum()){
+		return false;
+	}
+	if(password.val()==""){
+		$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300); 
+		return false;
+	}
+	if(!checkPassword()){
+		return false;
+	}
+	if(password.val()!=repassword.val()){
+		alert("前后密码输入不一致！");
+		return false;
+	}
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=175&username="+username.val()+"&userpwd="+password.val()+"&id="+localStorage.getItem("userId")+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+		    type : 175,
+		    username : username.val(),
+		    userpwd :  password.val(),
+		    id : localStorage.getItem("userId"),
+		},function(result){
+			regResult(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		regResult(result);
+	}
+});
+//注册结果
+function regResult(result){
+	if(result.result == 1){
+		alert("注册成功");
+		var arr = result.data
+		var uid = arr.id;
+		var userName = arr.userName;
+		var userNick = arr.nickName;
+		localStorage.setItem("userNick",userNick);
+		localStorage.setItem("userName",userName);
+		commonJs.loginPvStatistics(2,userName);//登录行为统计-注册成功pv统计	
+	}
+	else{
+		$("#Mes").html(result.msg).show(300).delay(2000).hide(300);
+	}
+}
+//验证手机号码
+function checkPhonenum () {
+	var phoneNum = true;
+	var phonenum = $("#J_username");
+	if(commonJs.hasElement(phonenum)) {
+		var phonenumVal = $.trim(phonenum.val());
+		if(phonenumVal.length < 1){
+			$("#Mes").html("请输入手机号码！").show(300).delay(2000).hide(300);
+			phoneNum = false;
+		}else{
+	        if (!/^[0-9]{11}$/.test(phonenumVal)) {
+				$("#Mes").html("请输入正确的手机号码！").show(300).delay(2000).hide(300);
+				phoneNum = false;
+			}
+		}
+	}
+	return phoneNum;
+}
+//验证密码
+function checkPassword () {
+	var checkPsw = true;
+	var password = $("#J_password");
+	if (commonJs.hasElement(password)) {
+		var pswVal = $.trim(password.val());
+		if (pswVal.length === 0) {
+			$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300);
+			checkPsw = false;
+		} else if (!/^.{6,32}$/.test(pswVal)) {
+			$("#Mes").html("密码长度必须为6-32字符！").show(300).delay(2000).hide(300);
+			checkPsw = false;
+		}
+	}
+	return checkPsw;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>应用推荐</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>	
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">应用推荐</span>
+	<div class="head_right">
+		<a onclick="getNewOne(2)"><img src="img/yyy.png"></a>
+	</div>
+</div>
+	
+<!-- 内容部分 -->
+<section>
+	<div class="apprecommend-info-yyy" onclick="registerYYY()" style="display:none">摇一摇</div>
+	<div class="apprecommend-info-hyz">摇一摇有惊喜哦</div>
+	<div class="apprecommend-info">
+		<img src="img/apprecommend.png">
+	</div>
+	<div class="apprecommend-info-in">
+		<img src="img/defaultGoodsImg.jpg">
+		<div class="apprecommend-info-in-title">完美365睡眠</div>
+		<div class="apprecommend-info-in-btn" onclick="downLoad('http://res.paitao.com:8080/client/upload/software/2013-09-29/cd98117fd0bb42a48e42016cc1511a06.apk','完美365睡眠')">马上下载</div>
+		<div class="apprecommend-info-in-basic"><span id="size">3.3M</span><span id="count">31000次下载</span></div>
+		<div class="apprecommend-info-in-brief">365天，精致睡眠</div>
+	</div>
+</section>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){
+	getAppInfo();//获取应用信息
+	registerYYY();//注册摇一摇 
+});
+//获取应用信息
+function getAppInfo(){
+
+}
+//填充应用信息
+function setAppInfo(){
+
+}
+//注册摇一摇 
+function registerYYY(){
+	if(window.myAndroidJs!==undefined){
+		window.myAndroidJs.registerYao();//注册摇一摇
+	}
+}
+//摇一摇回调函数 
+function yaoyao(){
+	getNewOne(1);
+}
+//换一张
+function getNewOne(type){
+	commonJs.appRecommendPvStatistics("",type,"");//应用推荐页面- type|1.换一张pv统计 2.摇一摇pv统计
+}
+//马上下载
+function downLoad(url,name){
+	commonJs.appRecommendPvStatistics(name,3,url);//应用推荐页面-下载行为pv统计
+}
+</script>
+</body>
+</html>

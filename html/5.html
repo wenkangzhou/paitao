@@ -1,0 +1,178 @@
+<!DOCTYPE HTML >
+<html>
+<head>
+<title>更多</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+	</div>
+	<span id="head_title">更多</span>
+	<div class="head_right">
+		<a href="javascript:commonJs.goto_shopping_cart()">
+			<img src="img/shopcar.png">
+			<span id="shopping_cart_num">0</span>
+		</a>
+	</div>
+</div>
+<!-- 内容部分 -->
+<div class="set_content">
+
+	<div class="set_main">
+		<div class="set_xian set_height">
+			<img src="img/more_nickname.png"/>
+			<span id="content-name" class="set_content_menu">小明</span>
+		</div>
+		<div id="user_on">
+			<div class="set_xian set_height" onclick="edit(1)">
+				<img src="img/more_info.png"/>
+				<span class="set_content_menu">个人资料</span>
+			</div>
+			<div class="set_height" onclick="edit(2)">
+				<img src="img/more_logout.png"/>
+				<span class="set_content_menu">退出账号</span>
+			</div>
+		</div>
+	</div>
+
+	<div id="user_off">
+		<div class="user_off_btn" onclick="edit(3)">注册</div>
+		<div class="user_off_btn" onclick="edit(4)">登录</div>
+		<div style="clear:both"></div>
+	</div>
+
+	<div class="set_main">
+		<div class="set_xian set_height" onclick="edit(5)">
+			<img src="img/more_order.png"/>
+			<span class="set_content_menu">我的订单<span>
+		</div>
+		<div class="set_height" onclick="edit(6)">
+			<img src="img/more_message.png"/>
+			<span class="set_content_menu">留言信箱</span>
+			<span class="mess_num set_munwz" id="message_num">0</span>
+		</div>
+	</div>	
+	<div class="set_main">
+		<div class="set_xian set_height" onclick="edit(7)">
+			<img src="img/more_help.png"/>
+			<span class="set_content_menu">购物帮助</span>
+		</div>
+		<div class="set_height" onclick="edit(8)">
+			<img src="img/more_about.png"/>
+			<span class="set_content_menu">关于拍掏</span>
+		</div>		
+	</div>
+	<div class="set_main">
+		<div class="set_height" onclick="edit(9)">
+			<img src="img/more_recommend.png"/>
+			<span class="set_content_menu">应用推荐</span>
+		</div>	
+	</div>
+</div>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script src="js/bottom.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){ 
+	initMenu();//初始化登录/未登录菜单的显示隐藏
+	getMsgNum();//获取留言信箱条数(setInterval("getMsgNum()",4000) —— 这个没必要)
+	commonJs.footStyleChange();//底部菜单样式变换
+	commonJs.doClearHistory();//清楚历史记录，防止返回时跳转到其它activity
+	commonJs.show_shopping_cart_num();//计算购物车里的商品数量
+});
+//初始化登录/未登录菜单的显示隐藏
+function initMenu(){
+	var userName = localStorage.getItem("userName");
+	var userNick = localStorage.getItem("userNick");
+	$("#content-name").html(userNick);
+	if(userName == null || userName == undefined || userName == ""){
+		$("#user_on").hide();
+		$("#user_off").show();
+		$(".set_xian").eq(0).removeClass("set_xian");
+	} else{
+		$("#user_on").show();
+		$("#user_off").hide();
+	}
+}
+//获取留言信箱条数
+function getMsgNum(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=166&userId="+localStorage.getItem("userId")+""))
+  	}catch (e) {
+		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : 166,
+			"userId" : localStorage.getItem("userId"),
+		},function(result){
+			if(result.result == 1){
+				var num = parseInt(result.data.num);
+				$("#message_num").text(num > 9 ? 'N' : num);
+			}
+		});
+	}	
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		if(result.result == 1){
+			var num = parseInt(result.data.num);
+			$("#message_num").text(num > 9 ? 'N' : num);
+		}
+	}	
+}
+//菜单的点击事件
+function edit(n){
+	if(n == 1){//个人资料
+		commonJs.morePvStatistics(1,n);//更多页面-点击个人资料进入修改页面pv统计
+	} else if(n == 2){//退出登录
+		commonJs.morePvStatistics(5,n);//更多页面-退出账号pv统计
+	} else if(n == 3){//注册
+		window.location.href="reg.html";
+	} else if(n == 4){//登录
+		window.location.href="login.html";
+	} else if(n == 5){//我的订单
+		commonJs.morePvStatistics(2,n);//更多页面-我的订单pv统计
+	} else if(n == 6){//留言信箱
+		commonJs.morePvStatistics(9,n);//更多页面-留言信箱pv统计
+	} else if(n == 7){//购物帮助
+		commonJs.morePvStatistics(6,n);//更多页面-购物帮助pv统计
+	} else if(n == 8){//关于拍掏
+		commonJs.morePvStatistics(7,n);//更多页面-关于拍掏pv统计
+	} else if(n == 9){//应用推荐
+		commonJs.morePvStatistics(8,n);//更多页面-应用推荐pv统计
+	}
+}
+//退出登录
+function logout(){
+	/**
+	 *退出登录后，又重新新建一个游客账号
+	 */
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.get_path("market?type=204"));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : "204",
+		},function(result){
+			localStorage.setItem("userId",result.data.id);//用户id
+			localStorage.setItem("userNick",result.data.nickName);//用户昵称
+			localStorage.setItem("userName","");//清空原来的userName
+			window.location.reload();
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		localStorage.setItem("userId",result.data.id);//用户id
+		localStorage.setItem("userNick",result.data.nickName);//用户昵称
+		localStorage.setItem("userName","");//清空原来的userName
+		window.location.reload();
+	}
+}
+</script>
+</body>
+</html>

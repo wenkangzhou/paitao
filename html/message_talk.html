@@ -1,0 +1,232 @@
+<!DOCTYPE HTML>
+<html> 
+<head>
+<title>留言板</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">留言板</span>
+	<div class="head_right">
+	</div>
+</div>
+<!-- 内容部分 -->
+<div id="mess_list">
+	<div id="message_board_div"></div>
+	<div class="mess_txt" id="target_div">
+		<input type="text" id="good_xqfbpltxt" class="mess_input" placeholder="我来说两句!" />
+		<a class="good_xqfbplbtn good_xqplBtncol" onclick="commit_Message();">发表</a>
+	</div>
+</div>
+
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+var _commodityId = commonJs.getParam("commodityId");
+var _channelId = commonJs.getParam("channelId");
+var _orderId = commonJs.getParam("orderId");
+var u_id = localStorage.getItem("userId");
+//dom加载后执行
+$(document).ready(function(){
+	get_message_list(function(){
+		var scrollY = 0 ; 
+		scrollY = $("#mess_list").height() - $(window).height()+45;
+		$("html,body").animate({scrollTop: scrollY}, 800);
+	});
+}); 
+//获取留言信息
+function get_message_list(callback){
+	if(!/\d+/.test(_channelId) || (!/\d+/.test(_orderId) && !/\d+/.test(_commodityId))){
+		return false;
+	}
+	var result="";
+	if(_orderId == null || _orderId === undefined || _orderId == ""|| _orderId == "null"){
+		try{
+  			result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=180&userId="+u_id+"&channelId="+_channelId+"&commodityId="+_commodityId+""))
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			   type : 180,
+			   userId : u_id,
+			   channelId : _channelId,
+			   commodityId : _commodityId
+			},function(result){
+				set_message_list(result);
+				callback();
+			});
+		}
+	}else{
+		try{
+  			result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=180&userId="+u_id+"&channelId="+_channelId+"&orderId="+_orderId+""))
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			   type : 180,
+			   userId : u_id,
+			   channelId : _channelId,
+			   orderId : _orderId
+			},function(result){
+				set_message_list(result);
+				callback();
+			});
+		}
+	}	
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		set_message_list(result);
+		callback();
+	}
+}
+//填充留言信息
+function set_message_list(result){
+	if(result.result == 1){
+		if(result.data.talkName.length > 1){
+			if(result.data.talkName.indexOf("订单")>-1){//订单
+				$("#head_title").html(result.data.talkName);
+			} else{//商品
+				$("#head_title").html(result.data.talkName.substr(0,8));
+			}
+		}
+		var arr = new Array();
+		if(result.data.messageBoardList.length < 1){
+			arr.push("<div class='good_xqpl' id='message_board_none'>");
+			arr.push("<div class='good_xqplnr'>");
+			arr.push("<div class='mess_per'></div>");
+			arr.push("<div class='good_xqpltxt'>暂无留言");
+			arr.push("</div></div></div>");
+		}else{
+			for(var i in result.data.messageBoardList){
+				var board = result.data.messageBoardList[i];
+				arr.push("<div class='good_xqpl'>");
+				arr.push("<div class='good_xqplnr'>");
+				arr.push("<div class='mess_per'>");
+				if(board.msgFrom == 0){
+					if(board.userNick != null && board.userNick.length > 0){
+						arr.push(board.userNick);
+					}else{
+						if(board.userName.length == 11){
+							arr.push(board.userName.substr(0,8));
+							arr.push("****");
+						}else{
+							arr.push(board.userName);
+						}
+					}
+				}else{
+					arr.push(board.channelName);
+				}
+				arr.push("(");
+				arr.push(board.replayTime);
+				arr.push(")</div>");
+				arr.push("<div class='good_xqpltxt'>");
+				arr.push(board.replayContent);
+				arr.push("</div></div></div>");
+			}
+		}
+		$("#message_board_div").html(arr.join(""));
+	}
+}
+//发表留言
+function commit_Message(){
+	if(!/\d+/.test(_channelId) || (!/\d+/.test(_orderId) && !/\d+/.test(_commodityId))){
+		return false;
+	}
+	var content = $("#good_xqfbpltxt").val();
+	if(content.length < 1){
+		alert('留言内容不能为空');
+		return ;
+	}
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=165&userId="+u_id+"&orderId="+_orderId+"&commodityId="+_commodityId+"&channelId="+_channelId+"&replayContent="+escape(content).replace(/%/g,"%25")+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			   type : 165,
+			   userId : u_id,
+			   orderId : _orderId,
+			   commodityId : _commodityId,
+			   channelId : _channelId,
+			   replayContent : escape(content),
+			},function(result){
+				commit_Message_result(result,content);
+			});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		commit_Message_result(result,content);
+	}
+}
+//发表留言事件处理结果
+function commit_Message_result(result,content){
+	if(result.result == 1){
+		if(result.data.result == "nocomm"){
+			alert("商品不存在或已下架");
+			return false;
+		}else if(result.data.result == "noorder"){
+			alert('该订单不存在');
+			return false;
+		}else if(result.data.result == "unde"){
+			var date = new Date();
+			var m = commonJs.num_padding(date.getMonth()+1);
+			var d = commonJs.num_padding(date.getDate());
+			var h = commonJs.num_padding(date.getHours());
+			var mi = commonJs.num_padding(date.getMinutes());
+			var s = commonJs.num_padding(date.getSeconds());
+			var arr = new Array();
+			arr.push("<div class='good_xqpl'>");
+			arr.push("<div class='good_xqplnr'>");
+			arr.push("<div class='mess_per'>系统回复");
+			arr.push("("+date.getFullYear()+"-"+m+"-"+d+" "+h+":"+mi+":"+s+")");
+			arr.push("</div>");
+			arr.push("<div class='good_xqpltxt'>非常抱歉, 该商品已下架. 客服功能已关闭");
+			arr.push("</div>");
+			arr.push("</div>");
+			arr.push("</div>");
+			$("#good_xqfbpltxt").val("");
+			$("#message_board_none").remove();
+			$("#message_board_div").append(arr.join(""));
+			return false;
+		}else if(result.data.result == "noparam"){
+			//alert("参数有误");
+			return false;
+		}else if(result.data.result == "nospeak"){
+			alert("您已被禁言");
+			return false;
+		}else if(result.data.result == "nouser"){
+			alert("该用户不存在");
+			return false;
+		}
+		$("#good_xqfbpltxt").val("");
+		var date = new Date();
+		var m = commonJs.num_padding(date.getMonth()+1);
+		var d = commonJs.num_padding(date.getDate());
+		var h = commonJs.num_padding(date.getHours());
+		var mi = commonJs.num_padding(date.getMinutes());
+		var s = commonJs.num_padding(date.getSeconds());
+		var arr = new Array("");
+		arr.push("<div class='good_xqpl'>");
+		arr.push("<div class='good_xqplnr'>");
+		arr.push("<div class='mess_per'>");
+		arr.push(localStorage.getItem("userNick"));
+		arr.push("("+date.getFullYear()+"-"+m+"-"+d+" "+h+":"+mi+":"+s+")");
+		arr.push("</div>");
+		arr.push("<div class='good_xqpltxt'>");
+		arr.push(content);
+		arr.push("</div>");
+		arr.push("</div>");
+		arr.push("</div>");
+		$("#message_board_none").remove();
+		$("#message_board_div").append(arr.join(""));
+	}
+}
+
+
+
+</script>
+</body>
+</html>

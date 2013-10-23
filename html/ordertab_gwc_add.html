@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>购物车结算</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">拍淘购物</span>
+	<div class="head_right">
+	</div>
+</div>
+<!-- 内容部分 -->
+<div id="main" class="orderbg">
+	<div class="order_title">
+		<p>商品总价：</p>
+	</div>
+	<div class="ordergwc_all">
+		<span class="ordergwc_fuhao">￥：</span>
+		<span class="ordergwc_addpri" id="totalPrice" ></span>
+	</div>
+	<p class="order_peotit" style="display:none">赠送拍淘积分：124分</p>
+	<p class="order_peotit">支付方式：货到付款</p>
+	<div class="order_title">
+		<p>收件人信息（<span class="order_xing">*</span>为必填项）</p>
+	</div>
+	<div class="order_peo">
+		<p class="order_peotit"><span class="order_xing">*</span>收件人</p>
+		<input id="name" name="consignee" type="text" class="order_icc1">
+		<p class="order_peotit"><span class="order_xing">*</span>收件人地址</p>
+		<div class="order_sheng">
+			<input type="text"  class="order_input" placeholder="请选择省">
+			<select class="order_select" id="province" name="province">
+				<option>-选择-</option>
+			</select>
+		</div>
+		<div class="order_shi">
+			<input type="text" class="order_input" placeholder="请选择市">
+			<select class="order_select" id="city" name="city" onmousedown="selectEmpty();">
+				<option>-选择-</option>
+			</select>
+		</div>
+		<br><br>
+		<input id="address" name="address" type="text" class="order_icc1" placeholder="请填写详细地址">
+		<p class="order_peotit"><span class="order_xing">*</span>手机号码</p>
+		<input id="phone" name="phone" type="text" class="order_icc1" >
+	</div>
+	<div class="order_btn" onclick="sub();"> 提交订单</div>
+</div>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script src="js/cityselect.js"></script>
+<script>
+//dom加载后执行
+$(document).ready(function() {
+	SelectN.setProperties({valueKey:'text'}); //重新设定各属性的键值
+	SelectN(data, 'province', 'city'); //初始化级联关系
+	getTotalPrice();//计算总价
+	getUserInfo();//获取用户信息
+	getShoppingCartNum();//计算购物车总数
+});
+//计算总价
+function getTotalPrice(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=182&userId="+localStorage.getItem("userId")+"&itemIds="+commonJs.getParam("itemIds")+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : 182,
+			"userId" : localStorage.getItem("userId"),
+			"itemIds" : commonJs.getParam("itemIds")
+		},function(result){
+			if(result.result == 1){
+				$("#totalPrice").html(result.data.totalPrice);  
+			}
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		if(result.result == 1){
+			$("#totalPrice").html(result.data.totalPrice);  
+		}
+	}
+}
+//获取用户信息
+function getUserInfo(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=163&userId="+localStorage.getItem("userId")+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : 163,
+			"userId" : localStorage.getItem("userId"),
+		},function(result){
+			setUserInfo(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setUserInfo(result);
+	}
+}
+//填充用户信息
+function setUserInfo(result){
+	var json = result.data;
+	var info = json.consigneeInfo;
+	if(info!==undefined){
+		$("#name").val(info.consignee);
+		$("#address").val(info.consigneeAddress);
+		$("#phone").val(info.consigneeMoble);
+		$("#province option[value='"+info.consigneeProvince+"']").attr("selected", "selected");
+		autopaddingCity(info.consigneeProvince,info.consigneeCity);
+	}
+}
+//填充省市信息
+function autopaddingCity(province,city){
+	var p_id = null;
+	var arr = new Array();
+	for ( var i = 0;i < data.length;i++) {
+		var json = data[i];
+		if(json.parent == '-' && json.text == province){
+			p_id = json.id;
+			break;
+		}
+	}
+	if(p_id == null){
+		return ;
+	}
+	for ( var i = 0;i < data.length;i++) {
+		var json = data[i];
+		if(json.parent == p_id){
+			arr.push('<option value="');
+			arr.push(json.text);
+			arr.push('">');
+			arr.push(json.text);
+			arr.push('</option>');
+		}
+	}
+	$("#city").append(arr.join(''));
+	$("#city option[value='"+city+"']").attr("selected", "selected");
+}
+//提交订单点击事件
+function sub(){
+	if(checkForm()){
+		var result="";
+	  	try{
+	  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=184&userId="+localStorage.getItem("userId")+"&phone="+$("#phone").val()+"&imei="+ACTIVATENUMBER+"&itemIds="+commonJs.getParam("itemIds")+"&channelCode="+CHANNEL+"&consignee="+escape($("#name").val()).replace(/%/g,"%25")+"&province="+escape($("#province").val()).replace(/%/g,"%25")+"&city="+escape($("#city").val()).replace(/%/g,"%25")+"&address="+escape($("#address").val()).replace(/%/g,"%25")+""));
+	  	}catch (e) {
+	  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+				"type" : 184,
+				"userId" : localStorage.getItem("userId"),
+				"phone" : $("#phone").val(),
+				"imei":ACTIVATENUMBER,
+				"itemIds":commonJs.getParam("itemIds"),
+				"channelCode":CHANNEL,
+				"consignee":escape($("#name").val()),
+				"province":escape($("#province").val()),
+				"city":escape($("#city").val()),
+				"address":escape($("#address").val()),
+			},function(result){
+				if(result.result ==1){
+					window.location.href = "ordertab_ok.html";
+				} else{
+					alert(result.msg);
+				}	
+			});
+		}
+		if(result!="")
+		{
+			result = JSON.parse(result);
+			if(result.result ==1){
+				window.location.href = "ordertab_ok.html";
+			} else{
+				alert(result.msg);
+			}	
+		}
+	}
+}
+//表单验证
+function checkForm(){
+	var num = $("#shoppingcartnum").val();
+	if(num < 1){
+		alert("购物车为空,请挑选商品");
+		window.location.href="1.html";
+		return false;
+	}
+	var r = /^[0-9]\d*$/;
+	var phone = document.getElementById("phone").value.replace(/[ ]/g,"");
+	if(phone==""||phone.length!=11||!r.test(phone)){
+		alert("请填写正确的手机号码");
+		return false;
+	}
+	if(document.getElementById("name").value==""){
+		alert("请填写收货人姓名");
+		return false;
+	}
+	if(document.getElementById("province").value=="-选择-"){
+		alert("请选择您所在的省");
+		return false;
+	}
+	if(document.getElementById("city").value=="-选择-"){
+		alert("请选择您所在的市");
+		return false;
+	}
+	if(document.getElementById("address").value==""){
+		alert("请填写收货地址'");
+		return false;
+	}
+	return true;
+}
+//省市验证
+function selectEmpty(){
+	var v = $("#province").val();
+	if(v == null || v == '-选择-'){
+		alert('请选择省');
+		return;
+	}
+}
+//计算购物车总数
+function getShoppingCartNum(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=160&userId="+localStorage.getItem("userId")));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : 160,
+			"userId" : localStorage.getItem("userId"),
+		},function(result){
+			if(result.result == "1"){
+				var count = parseInt(result.data.count);
+				$("#shoppingcartnum").val(count);
+			}
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		if(result.result == "1"){
+			var count = parseInt(result.data.count);
+			$("#shoppingcartnum").val(count);
+		}
+	}
+}
+</script>
+</body>
+</html>

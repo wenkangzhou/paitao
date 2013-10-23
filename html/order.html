@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>全部订单</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<link rel="stylesheet" href="css/main.css" type="text/css" />
+</head>
+<body>
+<!--顶部条-->
+<div id="header">
+	<div class="head_left">
+		<a href="javascript:history.go(-1)"><img src="img/back.png"></a>
+	</div>
+	<span id="head_title">我的订单</span>
+	<div class="head_right">
+	</div>
+</div>
+<!-- 如果有订单 这块内容不显示 -->
+<div class="gwc_kong" id="no_order_div" style="display: none;">
+	<div><img src="img/paitaoicon2.png" /></div>
+	<div class="gwc_kongp">您还没有下过订单哦！</div>
+	<div onclick="gotoBuySomething()" class="gwc_kong_btn">马上去抢购</div>
+</div>
+<!-- 内容部分 -->
+<div class="ord_list" id="list_div">
+	<ul>
+		<li onclick="gotodetail(1)">
+			<div class="ord_list_left">
+				<span class="ord_list_left_title">大肚子茶，轻松甩掉大肚腩</span>
+				<span class="ord_list_left_price">￥599</span>
+				<span class="ord_list_left_time">下单时间：2013-08-21</span>
+			</div>
+			<div class="ord_list_right">
+				<img src="img/defaultGoodsImg.jpg">
+				<span class="ord_list_right_btn">未确认</span>
+			</div>
+		</li>
+		<li>
+			<div class="ord_list_left">
+				<span class="ord_list_left_title">大肚子茶，轻松甩掉大肚腩</span>
+				<span class="ord_list_left_price">￥599</span>
+				<span class="ord_list_left_time">下单时间：2013-08-21</span>
+			</div>
+			<div class="ord_list_right">
+				<img src="img/defaultGoodsImg.jpg">
+				<span class="ord_list_right_btn">未确认</span>
+			</div>
+		</li>
+	</ul>
+</div>
+<script src="js/jq.js"></script>
+<script src="js/common.js"></script>
+<script type="text/javascript">
+//dom加载后执行
+$(document).ready(function(){
+	getOrderInfo();
+});
+//获取订单内容
+function getOrderInfo(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=136&imei="+ACTIVATENUMBER+""))
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+		   type : 136,
+		   imei : ACTIVATENUMBER
+		},function(result){
+			setOrderInfo(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setOrderInfo(result);
+	}
+}
+//填充订单内容
+function setOrderInfo(result){
+	var orderList = result.data.orderList;
+	if(orderList.length < 1){
+		$("#list_div").html("");
+		$("#no_order_div").show();
+		return false;
+	}else{
+		$("#no_order_div").hide();
+	}
+	var arr = new Array("");
+	arr.push("<ul>");
+	for(var j = 0 ;j < orderList.length;j++){
+		var order = orderList[j];
+		var id = order.id;
+		var title = order.title;
+		var status = order.status;
+		var icon = order.icon;
+		var totalOrderPrice = order.totalOrderPrice;
+		var time = order.time;
+	 	status = parseInt(status);
+		arr.push("<li onclick=\"gotodetail("+id+")\">");
+		arr.push("<div class=\"ord_list_left\">");
+		arr.push("<span class=\"ord_list_left_title\">");
+		arr.push(title);
+		arr.push("</span>");
+		arr.push("<span class=\"ord_list_left_price\">￥");
+		arr.push(totalOrderPrice);
+		arr.push("</span>");
+		arr.push("<span class=\"ord_list_left_time\">下单时间：");
+		arr.push(time);
+		arr.push("</span>");
+		arr.push("</div>");
+		arr.push("<div class=\"ord_list_right\">");
+		arr.push("<img src=\""+commonJs.getLinkUrl('http://res.wemedias.com:8080/client/upload/icon/',icon)+"\">");
+		arr.push("<span class=\"ord_list_right_btn\">");
+		switch (status) {
+			case 0:
+				arr.push("未确认");
+				break;
+			case 1:
+				arr.push("已确认");
+				break;
+			case 2:
+				arr.push("未确认");
+				break;
+			case 3:
+				arr.push("未确认");
+				break;
+			case 4:
+				arr.push("未确认");
+				break;
+			case 5:
+				arr.push("已发货");
+				break;
+			case 6:
+				arr.push("交易取消");
+				break;
+			case 7:
+				arr.push("交易成功");
+				break;
+			case 8:
+				arr.push("交易取消");
+				break;
+			default:
+				arr.push("未确认");
+				break;
+		}
+		arr.push("</span>");
+		arr.push("</div></li>");
+	}
+	arr.push("</ul>");
+	$("#list_div").html(arr.join(""));
+}
+//跳转到订单详情
+function gotodetail(id){
+	commonJs.morePvStatistics(3);//更多页面-在订单页面中点击订单查看订单详情pv统计
+	window.localStorage.setItem("ordertab_detail.html","ordertab_detail.html?id="+id);
+	window.location.href = "ordertab_detail.html";
+}
+//马上抢购点击事件
+function gotoBuySomething(){
+	commonJs.morePvStatistics(4);//更多页面-订单管理中无内容时点击"马上去抢购"pv统计
+	window.location.href = "1.html";
+}
+</script>
+</body>
+</html>
+
+
