@@ -13,22 +13,17 @@
 </div>
 	
 <script src="js/jq.js"></script>
+<script src="js/common.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){ 
-
 		var photoList =  window.myAndroidJs.getPictureList();
 		//获取当前图片
 		var current = photoList.substring(photoList.indexOf(":") + 1,(photoList.indexOf(",")));
-		
 		var photoStr = photoList.substring(photoList.indexOf("[") + 1,photoList.indexOf("]")).split(",");
-		
 		var html = "";
-
 		for(var i = 0;i<photoStr.length;i++){
-			
 			html += "<img src='" + photoStr[i] + "'>";
 		}
-		
 		$("#big_pic").html(html);
 	});
 </script>

@@ -21,7 +21,7 @@
 	</div>
 </div>
 <!-- 华丽的分割线 -->
-<section>
+<!-- <section>
 	<div class="line">
 		<div class="line-left">
 			<hr color="#e17777">
@@ -31,7 +31,19 @@
 			<hr color="#e17777">
 		</div>
 	</div>
-</section>
+</section> -->
+<!-- Tab栏 -->
+<section>
+	<div class="qg-tab">
+		<nav>
+			<ul class="qg-nav">
+				<li class="qg-nav-onactive" data-type="daytime"><a href="javascript:void(0)">白天</a></li>
+				<li data-type="evening"><a href="javascript:void(0)">晚上</a></li>
+				<li data-type="tomorrow"><a href="javascript:void(0)">预热</a></li>
+			</ul>
+		</nav>
+	</div>
+</section> 
 <!-- 内容部分 -->
 <section>
 	<div class="qg-list">
@@ -46,11 +58,22 @@
 						<img src="img/qg_line_bg.png">
 					</div>
 					<div class="qg-list-info-right">
-						<div class="qg-list-info-right-up">
+						<!-- 新样式 -->
+						<div class="qg-list-info-right-newup">
+							<div class="qg-list-info-right-newup-arrow">
+								<img src="img/qg_arrow.png">
+							</div>
+							<div class="qg-list-info-right-newup-inarrow">
+								<span>￥929.00</span>
+								<img src="img/qg_btn.png">
+							</div>
+						</div>
+						<!-- 旧样式 -->
+						<!-- <div class="qg-list-info-right-up">
 							<span class="qg-list-info-right-up-label">抢购价</span>
 							<span class="qg-list-info-right-up-price">￥929.00</span>
 						</div>
-						<div class="qg-list-info-right-line"><img src="img/qg_hline_bg.png"></div>
+						<div class="qg-list-info-right-line"><img src="img/qg_hline_bg.png"></div> -->
 						<div class="qg-list-info-right-mid">
 							<span class="qg-list-info-right-up-originalprice">原价:59.00</span>
 							<span class="qg-list-info-right-up-inventory">已售:127</span>
@@ -74,11 +97,20 @@
 						<img src="img/qg_line_bg.png">
 					</div>
 					<div class="qg-list-info-right">
-						<div class="qg-list-info-right-up">
+						<div class="qg-list-info-right-newup">
+							<div class="qg-list-info-right-newup-arrow">
+								<img src="img/qg_arrow.png">
+							</div>
+							<div class="qg-list-info-right-newup-inarrow">
+								<span>￥929.00</span>
+								<img src="img/qg_btn.png">
+							</div>
+						</div>
+						<!-- <div class="qg-list-info-right-up">
 							<span class="qg-list-info-right-up-label">抢购价</span>
 							<span class="qg-list-info-right-up-price">￥929.00</span>
 						</div>
-						<div class="qg-list-info-right-line"><img src="img/qg_hline_bg.png"></div>
+						<div class="qg-list-info-right-line"><img src="img/qg_hline_bg.png"></div> -->
 						<div class="qg-list-info-right-mid">
 							<span class="qg-list-info-right-up-originalprice">原价:59.00</span>
 							<span class="qg-list-info-right-up-inventory">已售:127</span>
@@ -101,46 +133,59 @@
 <script type="text/javascript">
 //dom加载后执行
 $(document).ready(function(){ 
-	getData();//获取抢购商品信息
+	getData(1);//获取抢购商品信息
 	commonJs.footStyleChange();//底部菜单样式变换
 	commonJs.doClearHistory();//清楚历史记录，防止返回时跳转到其它activity
 	commonJs.show_shopping_cart_num();//计算购物车里的商品数量
 });
 //获取抢购商品信息
-function getData(){
+function getData(timeId){
   	var result="";
   	try{
-  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=130"));
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=130&timeId="+timeId+""));
   	}catch (e) {
   		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
-		    "type" : "130"
+		    "type" : "130",
+		    "timeId" :timeId
 		},function(result){
-			setData(result);
+			setData(result,timeId);
 		});
 	}
 	if(result!="")
 	{
 		result = JSON.parse(result);
-		setData(result);
+		setData(result,timeId);
 	}
 }
 //填充抢购商品信息
-function setData(result){
+function setData(result,timeId){
 	var res = result.data;
 	$(".qg-list").html("");
+	var startPeriodTime = res[0].startPeriodTime;
+	var endPeriodTime = res[0].endPeriodTime;
+	var myDate = new Date();
+	var nowHour = myDate.getHours();
+	if(timeId==2){
+		endPeriodTime += 24;
+	}
+	if(startPeriodTime<=nowHour && nowHour<(parseInt(endPeriodTime))){
+		
+	} else{
+		$(".qg-list").html("<div class=\"qg-list-warn\">开放时间为"+res[0].startPeriodTime+"点至"+res[0].endPeriodTime+"点，届时欢迎抢购。</div>");
+	}
 	$(".qg-list").append("<ul>");
 	for(var i = 0 ;i < res.length;i++){
 		var info = res[i];
-		var html = getHtmlByInfo(info);
+		var html = getHtmlByInfo(info,timeId);
 		$(".qg-list").append(html);
 	}
 	$(".qg-list").append("</ul>");
 }
 //html拼接
-function getHtmlByInfo(info){
+function getHtmlByInfo(info,timeId){
 	var id = info.id;
 	var title = info.title;
-	var thumbnail = commonJs.getLinkUrl('http://res.wemedias.com:8080/client/upload/taoicon/',info.thumbnail);
+	var thumbnail = commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/taoicon/",info.thumbnail);
 	var discount = info.discount;
 	discount = Math.floor(discount);
 	var current_price = info.current_price;
@@ -150,8 +195,20 @@ function getHtmlByInfo(info){
 	if(t==null){
 		t = 0;
 	} 
+	var startPeriodTime = info.startPeriodTime;
+	var endPeriodTime = info.endPeriodTime;
+	var myDate = new Date();
+	var nowHour = myDate.getHours();
+	if(timeId==2){
+		endPeriodTime += 24;
+	}
 	var arr = new Array();
-	arr.push("<li onclick=\"gotoCommodityInfo("+ id + ")\">");
+	if(startPeriodTime<=nowHour && nowHour<(parseInt(endPeriodTime))){
+		arr.push("<li onclick=\"gotoCommodityInfo("+ id + ")\">");
+	} else{
+		arr.push("<li >");
+	}
+
 	arr.push("<div class=\"qg-list-title\">"+ title + "</div>");
 	arr.push("<div class=\"qg-list-info\">");
 	arr.push("<div class=\"qg-list-info-left\">");
@@ -161,11 +218,26 @@ function getHtmlByInfo(info){
 	arr.push("<img src=\"img/qg_line_bg.png\">");
 	arr.push("</div>");
 	arr.push("<div class=\"qg-list-info-right\">");
-	arr.push("<div class=\"qg-list-info-right-up\">");
-	arr.push("<span class=\"qg-list-info-right-up-label\">抢购价</span>");
-	arr.push("<span class=\"qg-list-info-right-up-price\">￥"+ current_price + "</span>");
+	/*旧样式*/
+	// arr.push("<div class=\"qg-list-info-right-up\">");
+	// arr.push("<span class=\"qg-list-info-right-up-label\">抢购价</span>");
+	// arr.push("<span class=\"qg-list-info-right-up-price\">￥"+ current_price + "</span>");
+	// arr.push("</div>");
+	// arr.push("<div class=\"qg-list-info-right-line\"><img src=\"img/qg_hline_bg.png\"></div>");
+	/*新样式*/
+	arr.push("<div class=\"qg-list-info-right-newup\">");
+	arr.push("<div class=\"qg-list-info-right-newup-arrow\">");
+	arr.push("<img src=\"img/qg_arrow.png\">");
 	arr.push("</div>");
-	arr.push("<div class=\"qg-list-info-right-line\"><img src=\"img/qg_hline_bg.png\"></div>");
+	arr.push("<div class=\"qg-list-info-right-newup-inarrow\">");
+	arr.push("<span>￥"+ current_price + "</span>");
+	if(startPeriodTime<=nowHour && nowHour<(parseInt(endPeriodTime))){
+		arr.push("<img src=\"img/qg_btn.png\">");
+	} else{
+		arr.push("<img src=\"img/nqg_btn.png\">");
+	}
+	arr.push("</div>");
+	arr.push("</div>");
 	arr.push("<div class=\"qg-list-info-right-mid\">");
 	arr.push("<span class=\"qg-list-info-right-up-originalprice\">原价:"+ original_price + "</span>");
 	arr.push("<span class=\"qg-list-info-right-up-inventory\">已售:"+ inventory + "</span>");
@@ -211,6 +283,119 @@ function show_date_time(timen, id,type) {
 function gotoCommodityInfo(id){
 	commonJs.goodsClassificationPvStatistics(id,localStorage.getItem("userId"),"qianggou");//抢购页点击商品进入详情页pv统计
 }
+//Tab栏点击事件绑定
+$(".qg-nav li").bind('click', function(){
+	var type = $(this).attr("data-type");
+	$(".qg-nav li").removeClass("qg-nav-onactive");
+	$(this).addClass("qg-nav-onactive");
+	if(type=="daytime"){  
+		getData(1);
+	} else if(type=="evening"){
+		getData(2);
+	} else if(type=="tomorrow"){
+		getFutureData();//获取预告商品信息
+	}
+});
+//获取预告商品信息
+function getFutureData(){
+  	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=211"));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+		    "type" : "211"
+		},function(result){
+			setFutureData(result);
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		setFutureData(result);
+	}
+}
+//填充抢购商品信息
+function setFutureData(result){
+	var res = result.data;
+	$(".qg-list").html("");
+	$(".qg-list").append("<ul>");
+	for(var i = 0 ;i < res.length;i++){
+		var info = res[i];
+		var html = getFutureHtmlByInfo(info);
+		$(".qg-list").append(html);
+	}
+	$(".qg-list").append("</ul>");
+}
+//html拼接
+function getFutureHtmlByInfo(info){
+	var id = info.id;
+	var title = info.title;
+	var thumbnail = commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/taoicon/",info.thumbnail);
+	var discount = info.discount;
+	discount = Math.floor(discount);
+	var current_price = info.current_price;
+	var original_price = info.original_price;
+	var inventory = info.inventory;
+	var t = info.timen;
+	if(t==null){
+		t = 0;
+	} 
+	var ft = info.panicBuyingTime;//预告时间
+	var ftTime = new Date(ft); 
+	var f = ftTime.getTime()
+	var now = new Date().getTime();//当前时间
+	var ftStr = (ftTime.getMonth()+1)+"月"+ftTime.getDate()+"日开抢";//+ftTime.getHours()+"点开抢！"
+	var arr = new Array();
+	if(f-now<=0){
+		arr.push("<li onclick=\"gotoCommodityInfo("+ id + ")\">");
+	} else{
+		arr.push("<li>");
+	}
+	arr.push("<div class=\"qg-list-title\">"+ title + "</div>");
+	arr.push("<div class=\"qg-list-info\">");
+	arr.push("<div class=\"qg-list-info-left\">");
+	arr.push("<img src=\""+ thumbnail + "\">");
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-mid\">");
+	arr.push("<img src=\"img/qg_line_bg.png\">");
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-right\">");
+	arr.push("<div class=\"qg-list-info-right-newup\">");
+	arr.push("<div class=\"qg-list-info-right-newup-arrow\">");
+	arr.push("<img src=\"img/qg_arrow.png\">");
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-right-newup-inarrow\">");
+	arr.push("<span>￥"+ current_price + "</span>");
+	if(f-now<=0){
+		arr.push("<img src=\"img/qg_btn.png\">");
+	} else{
+		arr.push("<img src=\"img/nqg_btn.png\">");
+	}
+	arr.push("</div>");
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-right-mid\">");
+	arr.push("<span class=\"qg-list-info-right-up-originalprice\">原价:"+ original_price + "</span>");
+	if(f-now<=0){
+		arr.push("<span class=\"qg-list-info-right-up-inventory\">已售:"+ inventory + "</span>");
+	}
+	arr.push("</div>");
+	arr.push("<div class=\"qg-list-info-right-line\"><img src=\"img/qg_hline_bg.png\"></div>");
+	arr.push("<div class=\"qg-list-info-right-down\">");
+	arr.push("<div class=\"qg-list-info-right-down-clock\"><img src=\"img/qg_clock.png\"></div>");
+	if(f-now<=0){
+		arr.push("<span class=\"qg-list-info-right-down-time\" id=\""+id+"\">0时0分0秒</span>");
+	} else{
+		arr.push("<span class=\"qg-list-info-right-down-time\" >"+ftStr+"</span>");
+	}
+	arr.push("</div>");
+	arr.push("</div>");
+	arr.push("</div>");
+	arr.push("</li>");
+	if(f-now<=0){
+		arr.push("<script>show_date_time("+t+"," +id+ ",0);<\/script>");
+	}
+	return arr.join("");
+}	
 </script>
 </body>
 </html>

@@ -34,7 +34,7 @@
 <div class="good_xqpro">
 	<p><span class="good_lqbz">商品名:<span id="_goods_name"></span><span></p>
 	<div class="good_xqprice">
-		<div class="good_xqkf" onclick="goto_board();">
+		<div class="good_xqkf" onclick="toBuy(1);">
 			<img src="img/sellRadius.png" />
 			<span id="_goods_currentPrice"></span>
 			<br>
@@ -251,7 +251,7 @@ function getGoodsInfo(result){
 function fill_boutique(){
 	if(_goods.boutique.length > 0){
 		var arr = new Array();
-		arr.push("<div id='jingping' style='float:left;width:100%;margin-bottom:78px'>");
+		arr.push("<div id='jingping' style='float:left;width:100%;margin-bottom:100px'>");
 		for(var i in _goods.boutique){
 			var bout = _goods.boutique[i];
 			//点击商品详情页, 猜你喜欢中商品进入详情页pv统计
@@ -272,6 +272,7 @@ function fill_boutique(){
 }
 //获取商品信息后调用
 function _callback(){
+	getCommodityAdvert();//获取商品详情页广告条信息
 	// 短信点击代码 暂时没启用
 	$("#fly_sms_view").click(function(){
 		window.myAndroidJs.sendMessage("我在拍淘发现了超赞的东西"+_goods.name+" 价格："+_goods.currentPrice+", 链接地址：http://api.paitao.com/server/forward?id="+_goods.id+"。你也赶紧下载拍淘, 淘宝贝吧。下载链接:http://wedanke.com/software/downloadSoft/1");
@@ -311,6 +312,25 @@ function show_date_time(){
 	}
 	span_dt_dt.innerHTML="<b align=center><font color=\"#FF9752\" style=font-size:16px>抢购倒计时:"+hrsold+"小时"+minsold+"分"+seconds+"秒"+"</font></b>";
 	timen = timen-1000;
+}
+//获取商品详情页广告条信息
+function getCommodityAdvert(){
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.get_path("market?type=209&channelId="+_goods.channelId+""));
+  	}catch (e) {
+  		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : "209",
+			"channelId" : _goods.channelId
+		},function(result){	
+			$(".goodsAvert").html("<img onclick=\"clickGoodsAdvert(9,"+_goods.newId+",'"+result.data.url+"')\" src=\""+commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/advert/",result.data.icon)+"\">");
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		$(".goodsAvert").html("<img onclick=\"clickGoodsAdvert(9,"+_goods.newId+",'"+result.data.url+"')\" src=\""+commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/advert/",result.data.icon)+"\">");
+	}
 }
 //获取评论信息
 function get_commodity_comment(){

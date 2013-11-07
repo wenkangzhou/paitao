@@ -8,13 +8,12 @@
 </head>
 <body>
 
+<!-- 无网络状态显示 -->
 <div id="notNetwork" style="display: none;" onclick="reloadCurrentPage()">
-	
 	<div style="margin-top: 40%;">
 		<img src="img/nonetwork.png" style="width:70%;margin-left: 15%">
 	</div>
 	<p style="color:#d66a24;font-family: 微软雅黑;width: 100%;text-align: center;">亲，您的网络不给力！请检查一下网络设置</p>
-	
 </div>
 
 <div id="bodyHtml">
@@ -157,13 +156,14 @@ $(document).ready(function(){
 	checkIsOnline()//检查网络
 	//loadData();//延时图片加载
 	setTimeout(loadadvertfromweb,1);//获取广告条数据
-	//获取热门推荐数据
+	getHotRecommend();//获取热门推荐数据
 	getCategory()//获取分类数据
 	localStorage.setItem("isFirstStart","true");//设置启动标识
 	initUser();//初始化用户
 	commonJs.footStyleChange();//底部菜单样式变换
 	commonJs.doClearHistory();//清楚历史记录，防止返回时跳转到其它activity
 	commonJs.show_shopping_cart_num();//计算购物车里的商品数量
+	console.log("♛哈♛哈♛哈♛哈♛被♛你♛发♛现♛了♛");
 });
 //检查是否互网
 function checkIsOnline(){
@@ -225,6 +225,45 @@ function getAdvertInfo(advertList){
 function gotoAdvertInfo(url,id,adver_place,sort){
 	commonJs.advertPvStatistics(id,adver_place,sort,url);//banner广告点击pv统计
 }
+//获取热门推荐数据
+function getHotRecommend(){
+	var result="";
+	try{
+		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=208"))
+	}catch (e) {
+		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			type:208
+		},function(result){
+			if(result.result=="1"){
+				setHotRecommend(result);
+			}
+		});
+	}
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		if(result.result=="1"){
+			setHotRecommend(result);
+		}
+	}	
+}
+//填充热门推荐数据
+function setHotRecommend(result){
+	var arr = new Array();
+	for(var i =0 ;i< result.data.length;i++){
+		var json = result.data[i];
+		if((i%2) > 0){
+			arr.push("<li>");
+		} 
+		arr.push("<a onclick=\"hotRecommendClick('"+json.url+"')\">");
+		arr.push("<img src=\""+json.icon+"\">");
+		arr.push("</a>");
+		if((i%2) > 0){
+			arr.push("</li>");
+		} 
+	}
+	$(".hotRecommend-img").html(arr.join(""));
+}
 //获取分类数据
 function getCategory(){
 	var result="";
@@ -233,9 +272,9 @@ function getCategory(){
 	}catch (e) {
 		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
 			type:173
-		},function(json){
-			if(json.result=="1"){
-				getCategoryInfo(json);
+		},function(result){
+			if(result.result=="1"){
+				getCategoryInfo(result);
 			}
 		});
 	}
@@ -254,13 +293,14 @@ function getCategoryInfo(json){
 		var father = json.data[i];
 		arr.push("<div class=\"classification-part\">");
 		arr.push("<div class=\"classification-one\">");
-		arr.push("<a onclick=\"gotoOneClassification("+father.id+")\"><img src=\"img/type002.jpg\"></a>");
+		arr.push("<a onclick=\"gotoOneClassification("+father.id+")\"><img src=\""+commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/icon/",father.icon)+"\"></a>");
 		arr.push("</div>");
 		arr.push("<div class=\"classification-two\">");
+
 		for(var j=0;j<father.childrenCount;j++){
 			var child = father.childrenList[j];
 			arr.push("<span onclick=\"gotoTwoClassification("+child.id+")\">");
-			arr.push("<img src=\"./img/bag.png\">");
+			arr.push("<img src=\""+commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/icon/",child.icon)+"\">");
 			arr.push("<p>"+child.name+"</p>");
 			arr.push("</span>");
 		}

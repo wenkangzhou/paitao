@@ -43,7 +43,7 @@
 </section>
 <!-- 搜索结果 -->
 <section>
-<div class="in_list">
+<div class="search_in_list">
 
 </div>
 </section>
@@ -55,18 +55,18 @@ var pageSize = 10,
 //dom加载后执行
 $(document).ready(function(){
 	$(".search-info").show();
-	$(".in_list").hide();
+	$(".search_in_list").hide();
 	getKeyWord();//获取关键字
 });
 //获取关键字
 function getKeyWord(){
 	var result="";
   	try{
-  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=16&top=12"));
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=212&top=12"));
   	}catch (e) {
   		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
-		    type : 16,
-		    top : 12,
+		    type : 212,
+		    top : 12
 		},function(result){
 			setKeyWord(result);
 		});
@@ -109,43 +109,43 @@ function loadData(loadType,keyword){
 		//加载下一页数据
 		pageNo = pageNo + 1;
 	}
-	var result="";
-	try{
-		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=134&pageSize="+pageSize+"&pageNo="+pageNo+"&channel="+CHANNEL+"&keyword="+escape(keyword).replace(/%/g,"%25")+""))
-	}catch (e) {
-		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
-		    type : 134,
-		    pageSize : pageSize,
-		    pageNo : pageNo,
-		    channel : CHANNEL,
-		    keyword : escape(keyword),
-		},function(result){
-			setData(result,pageNo);
-		});
-	}
-	if(result!="")
-	{
-		result = JSON.parse(result);
+	// var result="";
+	// try{
+	// 	result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=134&pageSize="+pageSize+"&pageNo="+pageNo+"&channel="+CHANNEL+"&keyword="+escape(keyword).replace(/%/g,"%25")+""))
+	// }catch (e) {
+	$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+	    type : 134,
+	    pageSize : pageSize,
+	    pageNo : pageNo,
+	    channel : CHANNEL,
+	    keyword : escape(keyword),
+	},function(result){
 		setData(result,pageNo);
-	}	
+	});
+	// }
+	// if(result!="")
+	// {
+	// 	result = JSON.parse(result);
+	// 	setData(result,pageNo);
+	// }	
 }
 //填充搜索数据
 function setData(result,pageNo){
 	var res = result.data;
 	if(pageNo==1){
 		if(res==""){
-			$(".in_list").html("暂无数据");
+			$(".search_in_list").html("<p style=\"text-align: center;font-size: 18px;font-family:微软雅黑;\">暂无数据</p>");
 		}else{
-			$(".in_list").html("");
+			$(".search_in_list").html("");
 		}
 	}
 	for(var i = 0 ;i < res.length;i++){
 		var info = res[i];
 		var html = getHtmlByInfo(info);
-		$(".in_list").append(html);
+		$(".search_in_list").append(html);
 	}
 	$(".search-info").hide();
-	$(".in_list").show();
+	$(".search_in_list").show();
 }
 //html拼接
 function getHtmlByInfo(info){

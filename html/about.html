@@ -26,10 +26,11 @@
         <div class="about_version">v2.2</div>
         <div class="about_block"><span id="version">已经是最新版本<span></div>
         <div class="about_block">客服投诉热线：021- 32562377</div>
+        <div class="about_block">微信公众账号：shpaitao</div>
         <div class="about_second_title">关注我们</div>
         <div class="about_social_logo">
           <img src="img/about_sina.png" onclick="socialClick(1)">
-          <img src="img/about_weixin.png" onclick="socialClick(2)">
+          
           <img src="img/about_qqwb.png" onclick="socialClick(3)">
         </div>
     </div>
@@ -40,9 +41,10 @@
 //dom加载后执行
 $(document).ready(function(){
    $(".about_version").html("V"+VERSIONNAME);
-    if(VERSIONCODE < 50){
-      $("#version").html("<a href=\"http://wedanke.com/software/downloadSoft/1\">检测更新(目前最新版本V2.2)</a>");
-    }
+    /*版本检测*/
+    // if(VERSIONCODE < 50){
+    //   $("#version").html("<a href=\"http://wedanke.com/software/downloadSoft/1\">检测更新(目前最新版本V2.2)</a>");
+    // }
 });
 //分享图标点击事件
 function socialClick(type){

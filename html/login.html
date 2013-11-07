@@ -47,11 +47,13 @@ $("#J_submit").click( function() {
 	var username = $("#J_username"),
 	  	password = $("#J_password");
 	if(username.val()=="") {
-		$("#Mes").html("请输入账号！").show(300).delay(2000).hide(300);
+		alert("请输入账号！");
+		//$("#Mes").html("请输入账号！").show(300).delay(2000).hide(300);
 		return false;
 	}
 	if(password.val()==""){
-		$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300);
+		alert("请输入密码！");
+		//$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300);
 		return false;
 	}
 	user_login(username.val(),password.val());
@@ -92,7 +94,8 @@ function user_login_result(result){
 		});
 	} else{
 		//失败 显示错误信息
-		$("#Mes").html(result.msg).show(300).delay(2000).hide(300);
+		alert(result.msg);
+		//$("#Mes").html(result.msg).show(300).delay(2000).hide(300);
 	}
 }	
 //同步游客账号的购物车信息到登录账号上

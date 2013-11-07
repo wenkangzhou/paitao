@@ -26,11 +26,34 @@
 		<img src="img/apprecommend.png">
 	</div>
 	<div class="apprecommend-info-in">
+		<!-- 应用 -->
 		<img src="img/defaultGoodsImg.jpg">
 		<div class="apprecommend-info-in-title">完美365睡眠</div>
 		<div class="apprecommend-info-in-btn" onclick="downLoad('http://res.paitao.com:8080/client/upload/software/2013-09-29/cd98117fd0bb42a48e42016cc1511a06.apk','完美365睡眠')">马上下载</div>
-		<div class="apprecommend-info-in-basic"><span id="size">3.3M</span><span id="count">31000次下载</span></div>
+		<div class="apprecommend-info-in-basic"><span id="size">3.30M</span><span id="count">310000次下载</span></div>
 		<div class="apprecommend-info-in-brief">365天，精致睡眠</div>
+		<!-- 段子 -->
+		<!-- <div class="apprecommend-info-in-story-title">段子</div>
+		<div class="apprecommend-info-in-hr"><hr></div>
+		<p>
+			有一种借口叫年轻，可以不珍惜时光，不珍惜爱，不珍惜一切来之不易的东西。有一种感情叫错过，错过爱，错过可以相守的人，错过一段刻骨铭心的情。有一种寂寞叫想念，想念一个人，一段往事，一场相遇。寂静的夜里，深深切切的想念，于是深深切切地寂寞……
+		</p> -->
+		<!-- 商品 -->
+<!-- 		<div class="apprecommend-info-in-commodity-img">
+			<img onclick="gotoCommodityInfo('97140')" src="http://img.51youpin.com/new2010/images/goods/201104/53399/thumb_53399_0_1348834575.jpg">
+		</div>
+		<div class="apprecommend-info-in-commodity-title">炫彩冰珠按摩眼罩(买一送一)</div>
+		<div class="apprecommend-info-in-commodity-price">
+			<span class="apprecommend-info-in-commodity-price-n">￥4999</span>
+			<span class="apprecommend-info-in-commodity-price-o">
+				<del>原价:￥5099</del>
+			</span>
+		</div>
+		<div class="apprecommend-info-in-commodity-btn" onclick="gotoCommodityInfo('97140')">立即购买</div>
+		<div class="apprecommend-info-in-commodity-brief">商品介绍：</div>
+		<div class="apprecommend-info-in-commodity-info">
+			有一种借口叫年轻，可以不珍惜时光，不珍惜爱，不珍惜一切来之不易的东西。有一种感情叫错过，错过爱，错过可以相守的人，错过一段刻骨铭心的情。有一种寂寞叫想念，想念一个人，一段往事，一场相遇。寂静的夜里，深深切切的想念，于是深深切切地寂寞……
+		</div> -->
 	</div>
 </section>
 <script src="js/jq.js"></script>
@@ -43,11 +66,70 @@ $(document).ready(function(){
 });
 //获取应用信息
 function getAppInfo(){
-
+	var result="";
+  	try{
+  		result = window.myAndroidJs.doPostHttpRequest(commonJs.getPath("market?type=210"))
+  	}catch (e) {
+		$.getJSON(commonJs.getPath("market?jsoncallback=?"),{
+			"type" : 210
+		},function(result){
+			if(result.result == 1){
+				setAppInfo(result);
+			}
+		});
+	}	
+	if(result!="")
+	{
+		result = JSON.parse(result);
+		if(result.result == 1){
+			setAppInfo(result);
+		}
+	}	
 }
 //填充应用信息
-function setAppInfo(){
-
+function setAppInfo(result){
+	var arr = new Array();
+	var res = result.data;
+	var type = res.type;
+	var json = res.data;
+	if(type==1){//商品推荐
+		arr.push("<div class=\"apprecommend-info-in-commodity-img\">");
+		arr.push("<img onclick=\"gotoCommodityInfo('"+json.id+"')\" src=\""+commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/taoicon/",json.icon)+"\" ");
+		arr.push("</div>");
+		arr.push("<div class=\"apprecommend-info-in-commodity-title\">"+json.name.substring(0,13)+"</div>");
+		arr.push("<div class=\"apprecommend-info-in-commodity-price\">");
+		arr.push("<span class=\"apprecommend-info-in-commodity-price-n\">￥"+json.currentPrice+"</span>");
+		arr.push("<span class=\"apprecommend-info-in-commodity-price-o\">");
+		arr.push("<del>原价:￥"+json.originalPrice+"</del>");
+		arr.push("</span>");
+		arr.push("</div>");
+		arr.push("<div class=\"apprecommend-info-in-commodity-btn\" onclick=\"gotoCommodityInfo('"+json.id+"')\">立即购买</div>");
+		arr.push("<div class=\"apprecommend-info-in-commodity-brief\">商品介绍：</div>");
+		arr.push("<div class=\"apprecommend-info-in-commodity-info\">");
+		arr.push(json.remark);
+		arr.push("</div>");
+	} else if(type==2){//应用推荐
+		arr.push("<img src=\""+commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/icon/",json.icon)+"\">");
+		arr.push("<div class=\"apprecommend-info-in-title\">"+json.name+"</div>");
+		arr.push("<div class=\"apprecommend-info-in-btn\" onclick=\"downLoad('"+commonJs.getLinkUrl("http://res.wemedias.com:8080/client/upload/software/",json.download)+"','"+json.name+"')\">马上下载</div>");
+		arr.push("<div class=\"apprecommend-info-in-basic\">");
+		arr.push("<span id=\"size\">"+json.size+"</span>");
+		arr.push("<span id=\"count\">"+json.count+"次下载</span>");
+		arr.push("</div>");
+		arr.push("<div class=\"apprecommend-info-in-brief\">"+json.remark+"</div>");
+	} else if(type==3){//段子推荐
+		arr.push("<div class=\"apprecommend-info-in-story-title\">段子</div>");
+		arr.push("<div class=\"apprecommend-info-in-hr\"><hr></div>");
+		arr.push("<p>");
+		arr.push(json.remark);
+		arr.push("</p>");
+	}
+	$(".apprecommend-info-in").html(arr.join(""));
+	//.hide(1000).show(1000)
+	//$(".apprecommend-info").removeClass("apprecommend-info-shake");//移除摇一摇的效果
+	setTimeout(function() {  
+       $(".apprecommend-info").removeClass("apprecommend-info-shake");//移除摇一摇的效果
+    }, 2000);
 }
 //注册摇一摇 
 function registerYYY(){
@@ -61,11 +143,16 @@ function yaoyao(){
 }
 //换一张
 function getNewOne(type){
+	$(".apprecommend-info").addClass("apprecommend-info-shake");//增加摇一摇的效果
 	commonJs.appRecommendPvStatistics("",type,"");//应用推荐页面- type|1.换一张pv统计 2.摇一摇pv统计
 }
 //马上下载
 function downLoad(url,name){
 	commonJs.appRecommendPvStatistics(name,3,url);//应用推荐页面-下载行为pv统计
+}
+//跳转到商品详情页
+function gotoCommodityInfo(id){
+	commonJs.goodsClassificationPvStatistics(id,localStorage.getItem("userId"),"yaoyiyao");//分类目录中点击商品进入详情页pv统计
 }
 </script>
 </body>

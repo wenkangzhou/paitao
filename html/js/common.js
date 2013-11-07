@@ -7,7 +7,8 @@ var	CHANNEL = window.myAndroidJs!==undefined?window.myAndroidJs.getChannel() : "
 	VERSIONCODE = window.myAndroidJs!==undefined?window.myAndroidJs.getVersionCode() : "50",
 	VERSIONNAME = window.myAndroidJs!==undefined?window.myAndroidJs.getVersionName() : "2.2",
 	CLIENTTYPE = "2",
-	PVPARAMETER  = "channel="+CHANNEL+"&activateNumber="+ACTIVATENUMBER+"&imei="+IMEI+"&pvType="+CLIENTTYPE+"&versionName="+VERSIONNAME; 
+	UID = localStorage.getItem("userId"),
+	PVPARAMETER  = "channel="+CHANNEL+"&activateNumber="+ACTIVATENUMBER+"&imei="+IMEI+"&pvType="+CLIENTTYPE+"&versionName="+VERSIONNAME+"&uid="+UID; 
 var commonJs = {
 	/**
 	 * 获取接口地址
@@ -44,6 +45,32 @@ var commonJs = {
 			}
 	　　} 
 		return rt;
+	},
+	/**
+	 * 对象转字符串
+	 */
+	o2string : function o2string(O){
+		var S = [];
+	    var J = "";
+	    if (Object.prototype.toString.apply(O) === '[object Array]') {
+	        for (var i = 0; i < O.length; i++)
+	            S.push(commonJs.o2string(O[i]));
+	        J = '[' + S.join(',') + ']';
+	    }
+	    else if (Object.prototype.toString.apply(O) === '[object Date]') {
+	        J = "new Date(" + O.getTime() + ")";
+	    }
+	    else if (Object.prototype.toString.apply(O) === '[object RegExp]' || Object.prototype.toString.apply(O) === '[object Function]') {
+	        J = O.toString();
+	    }
+	    else if (Object.prototype.toString.apply(O) === '[object Object]') {
+	        for (var i in O) {
+	            O[i] = typeof (O[i]) == 'string' ? '"' + O[i] + '"' : (typeof (O[i]) === 'object' ? commonJs.o2string(O[i]) : O[i]);
+	            S.push(i + ':' + O[i]);
+	        }
+	        J = '{' + S.join(',') + '}';
+	    }
+	    return J;
 	},
 	/**
 	 * 日期显示转换
@@ -111,7 +138,7 @@ var commonJs = {
 		}
 	},
 	/**
-	 * 清楚历史记录，防止返回时跳转到其它activity
+	 * 清除历史记录，防止返回时跳转到其它activity
 	 */
 	doClearHistory : function doClearHistory() {
 		if(window.myAndroidJs!==undefined){
@@ -178,6 +205,18 @@ var commonJs = {
 		if(footIndexId == null || footIndexId === undefined || footIndexId == ""){
 			footIndexId = 1;
 		}
+		var url = window.location.href;
+		if(url.indexOf("1.html")>-1){
+			footIndexId = 1;
+		} else if(url.indexOf("2.html")>-1){
+			footIndexId = 2;
+		} else if(url.indexOf("3.html")>-1){
+			footIndexId = 3;
+		} else if(url.indexOf("4.html")>-1){
+			footIndexId = 4;
+		} else if(url.indexOf("5.html")>-1){
+			footIndexId = 5;
+		}
 		var nowImgSrc = $(".footmune img").eq(footIndexId-1).attr("src");
 		nowImgSrc = nowImgSrc.substring(0,nowImgSrc.indexOf(".png"))+"_on.png";
 		$(".footmune span").removeClass("footmuneon");
@@ -208,6 +247,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				localStorage.setItem("footIndexId",i);//保存调转页序号，用于样式更换
 				if(window.myAndroidJs!==undefined){
@@ -246,6 +286,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				window.location.href = url;
 			});
@@ -273,6 +314,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				window.localStorage.setItem("in.html","in.html?key=" + categoryId);
 				window.location.href="in.html";
@@ -293,6 +335,7 @@ var commonJs = {
 	 * cainixihuan : 点击商品详情页, 猜你喜欢中商品进入详情页
 	 * qita : 其他方式进入详情页
 	 * sousuo : 搜索页中点击商品进入详情页
+	 * yaoyiyao：摇一摇页面进入详情页
 	 */
 	goodsClassificationPvStatistics : function goodsClassificationPvStatistics(id,userId,readType){
 	 	var result="";
@@ -310,6 +353,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				commonJs.goto_goods_detail(id);//跳转到商品详情页
 			});
@@ -348,6 +392,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				_callback();
 			});
@@ -377,6 +422,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				if(category=="1"){
 					loadData(1,type);
@@ -411,6 +457,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				window.localStorage.setItem("special_more.html","special_more.html?id="+id);
 				window.location.href="special_more.html";
@@ -448,6 +495,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				if(n == 1){//个人资料
 					window.location.href="setting_info.html";
@@ -506,6 +554,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				if(category=="1"){
 					window.location.href = "reg.html";
@@ -544,6 +593,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				if(category=="1"){
 					window.location.href = "http://t.cn/zRMCIp4";
@@ -582,6 +632,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				loadData(1,keyword);
 			});
@@ -608,6 +659,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				window.location.href = link;
 			});
@@ -638,6 +690,7 @@ var commonJs = {
 				"imei" : IMEI,
 				"pvType" : CLIENTTYPE,
 				"versionName" : VERSIONNAME,
+				"uid" : UID
 			},function(result){
 				if(category=="1"){
 					getAppInfo();
@@ -659,4 +712,14 @@ var commonJs = {
 			}
 		}
 	}
-} 
+};
+// 立即执行函数，关闭摇一摇
+~+-!(function(){   
+	if(window.myAndroidJs!==undefined){
+		var url = window.location.href;
+		if(url.indexOf("app_recommend")==-1){
+			console.log("这样就可以把日志打到logcat里，吼吼！#####"+url+"####");
+			window.myAndroidJs.unregisterYao();
+		}
+	}
+})();  

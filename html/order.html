@@ -18,9 +18,13 @@
 </div>
 <!-- 如果有订单 这块内容不显示 -->
 <div class="gwc_kong" id="no_order_div" style="display: none;">
-	<div><img src="img/paitaoicon2.png" /></div>
-	<div class="gwc_kongp">您还没有下过订单哦！</div>
-	<div onclick="gotoBuySomething()" class="gwc_kong_btn">马上去抢购</div>
+	<div class="order_empty"><img src="img/basket_empty.png" /></div>
+	<div class="order_empty_title">您还没有下过订单哦！</div>
+	<div class="order-ok-btn" onclick="gotoBuySomething()">马上去抢购</div>
+<!-- 	<hr>
+	<div class="order-ok-info">
+		成为拍淘会员，购物无需填写收货信息，更多优惠活动等你来拿。
+	</div> -->
 </div>
 <!-- 内容部分 -->
 <div class="ord_list" id="list_div">

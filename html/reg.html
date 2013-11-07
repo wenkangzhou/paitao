@@ -50,7 +50,8 @@ $("#J_submit").click( function() {
 		return false;
 	}
 	if(password.val()==""){
-		$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300); 
+		alert("请输入密码！");
+		//$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300); 
 		return false;
 	}
 	if(!checkPassword()){
@@ -102,11 +103,13 @@ function checkPhonenum () {
 	if(commonJs.hasElement(phonenum)) {
 		var phonenumVal = $.trim(phonenum.val());
 		if(phonenumVal.length < 1){
-			$("#Mes").html("请输入手机号码！").show(300).delay(2000).hide(300);
+			alert("请输入手机号码！");
+			//$("#Mes").html("请输入手机号码！").show(300).delay(2000).hide(300);
 			phoneNum = false;
 		}else{
 	        if (!/^[0-9]{11}$/.test(phonenumVal)) {
-				$("#Mes").html("请输入正确的手机号码！").show(300).delay(2000).hide(300);
+	        	alert("请输入正确的手机号码！");
+				//$("#Mes").html("请输入正确的手机号码！").show(300).delay(2000).hide(300);
 				phoneNum = false;
 			}
 		}
@@ -120,10 +123,12 @@ function checkPassword () {
 	if (commonJs.hasElement(password)) {
 		var pswVal = $.trim(password.val());
 		if (pswVal.length === 0) {
-			$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300);
+			alert("请输入密码！");
+			//$("#Mes").html("请输入密码！").show(300).delay(2000).hide(300);
 			checkPsw = false;
 		} else if (!/^.{6,32}$/.test(pswVal)) {
-			$("#Mes").html("密码长度必须为6-32字符！").show(300).delay(2000).hide(300);
+			alert("密码长度必须为6-32字符！");
+			//$("#Mes").html("密码长度必须为6-32字符！").show(300).delay(2000).hide(300);
 			checkPsw = false;
 		}
 	}
