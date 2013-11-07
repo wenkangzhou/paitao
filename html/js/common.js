@@ -18,7 +18,7 @@ var commonJs = {
 		 * 测试服务器链接http://192.168.1.188:8080/server_ppc592/
 		 * 线上服务器链接http://api.paitao.com/server/
 		 */
-		var basePath = "http://192.168.1.188:8080/server_ppc592/";
+		var basePath = "http://api.paitao.com/server/";
 		if(last == null){
 			return basePath;
 		}
