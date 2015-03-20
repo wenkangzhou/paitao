@@ -1,1 +1,1 @@
-拍淘hybrid版h5代码
+拍淘hybrid/h5代码
